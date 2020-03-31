@@ -1,10 +1,11 @@
 package card
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestCreateCard(t *testing.T) {
-	card := CreatePoker()
-
-	card.Print()
+	fmt.Println(pokerHaveGhost)
 	t.Log()
 }

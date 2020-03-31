@@ -39,7 +39,7 @@ func TestShuffle(t *testing.T) {
 func TestDispacther(t *testing.T) {
 	initValues := CreateNew()
 	Shuffle(initValues)
-	play1:=Dispacther(0, initValues)
+	play1 := Dispacther(0, initValues)
 	fmt.Println("玩家1：", play1)
 	fmt.Println("玩家2：", Dispacther(1, initValues))
 	fmt.Println("玩家3：", Dispacther(2, initValues))
@@ -73,6 +73,7 @@ func TestParseCardsInSize(t *testing.T) {
 	fmt.Println("\nA玩家:", ashowMode.CompareValue)
 	fmt.Println("B玩家:", bshowMode.CompareValue)
 }
+
 //验证炸弹
 func TestParseCardsInSize2(t *testing.T) {
 	// 1
@@ -80,6 +81,7 @@ func TestParseCardsInSize2(t *testing.T) {
 	ashowMode := ParseCardsInSize(cardsA)
 	fmt.Println("\nA玩家:", ashowMode.CardTypeStatus)
 }
+
 //验证顺子
 func TestParseCardsInSize3(t *testing.T) {
 	// 1
@@ -94,4 +96,38 @@ func TestParseCardsInSize3(t *testing.T) {
 	bshowMode := ParseCardsInSize(cardsB)
 	fmt.Println("\nA玩家:", ashowMode.CardTypeStatus)
 	fmt.Println("\nB玩家:", bshowMode.CardTypeStatus)
+}
+
+// 测试顺子
+func TestIsContinuity(t *testing.T) {
+	poker := []int32{3, 4, 6, 7, 8, 9, 10, 12, 13}
+	ok := getContinuity(poker)
+	fmt.Println("respond:", ok)
+}
+
+// 获取顺子
+func getContinuity(poker []int32) []int32 {
+	var poker1 []int32
+	var datamap = make(map[int32]bool)
+	var count int
+	keys := poker
+	for i := 0; i < len(keys)-1; i++ {
+		values := keys[i+1]
+		if (keys[i] < values) && (keys[i] == values-1) {
+			count++
+			datamap[keys[i]] = true
+			datamap[values] = true
+		} else {
+			if count < 4 {
+				count = 0
+				datamap = make(map[int32]bool, 0)
+			} else {
+				break
+			}
+		}
+	}
+	for k, _ := range datamap {
+		poker1 = append(poker1, k)
+	}
+	return poker1
 }
