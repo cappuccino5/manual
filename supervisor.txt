@@ -1,0 +1,291 @@
+笔记:
+
+mysql 密码错误
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+
+方法一 查找日志 (linux 解决方案):
+
+vi /var/log/mysqld.log 
+
+查找生成的随机密码
+
+输入：/temporary password
+
+ #或者
+grep 'temporary password' /var/log/mysqld.log
+
+如果没有找到密码
+
+删除原来安装过的mysql残留的数据（这一步非常重要，问题就出在这）
+rm -rf /var/lib/mysql
+
+systemctl restart mysqld
+
+grep 'temporary password' /var/log/mysqld.log
+
+使用临时密码登陆，修改密码，如方法二
+
+方法二 修改mysql密码(inux windows 通用解决方案 )
+
+ mysql -u root -p
+
+***
+
+use mysql 
+
+desc mysql 
+
+设置密码的验证强度等级:
+ set global validate_password_policy=LOW;
+密码长度:
+set global validate_password_length=6;
+修改root密码永不过期：
+update user set authentication_string = password('123456')  where user = 'root';
+UPDATE user SET `password_expired`='N' where user='root';
+ALTER USER 'root'@'localhost' PASSWORD EXPIRE NEVER;
+
+flush privileges;    // 重新加载权限表
+
+
+-------windos解决方案----
+
+新安装后先不要运行mysql  
+
+windos 检查配置文件
+mysql-5.7.29-winx64 my.ini 
+
+[mysqld]
+skip-grant-tables
+# 设置3306端口
+port=3306
+# 设置mysql的安装目录
+basedir=F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64
+# 设置mysql数据库的数据的存放目录
+datadir=F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64\data
+# 允许最大连接数
+max_connections=200
+# 允许连接失败的次数。这是为了防止有人从该主机试图攻击数据库系统
+max_connect_errors=10
+# 服务端使用的字符集默认为UTF8
+character-set-server=utf8
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+# 默认使用“mysql_native_password”插件认证
+default_authentication_plugin=mysql_native_password
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set=utf8
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3306
+default-character-set=utf8
+
+检查环境变量
+path      F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64\bin
+
+设置好配置文件后：
+管理员运行cmd
+
+关闭服务是：net stop mysql 
+
+mysqld --initialize   #直接初始化mysql，生成data文件夹中的文件。
+
+mysqld -install          #安装mysql
+
+net start mysql          #启动服务器
+
+修改密码详细：
+
+https://blog.csdn.net/l_o_s/article/details/79672194
+
+
+
+
+
+supervisor安装
+方法一、使用yum命令安装（推荐）
+$ sudo su - #切换为root用户
+
+
+
+# yum install epel-release
+
+
+# yum install -y supervisor
+
+
+# systemctl enable supervisord 
+systemctl enable supervisord.service
+
+# 开机自启动
+# 
+
+systemctl start supervisord 
+systemctl start supervisord.service
+
+# 查看启动supervisord服务
+
+
+# systemctl status supervisord
+ ps -aux|grep supervisord
+
+ # 查看supervisord服务状态
+
+# ps -ef|grep supervisord # 查看是否存在supervisord进程
+
+方法一、源码安装（省事的不推荐）
+https://pypi.org/project/supervisor/#files
+
+
+supervisor 修改加载配置路径
+vi /etc/supervisord.conf 
+
+[include]
+files = /data/supervisord.d/*.conf
+
+/etc/supervisord.d/*.conf
+
+
+spawn 在expect里面
+
+安装expect：
+yum -y install expect
+
+
+centos查看防火墙:
+
+查看防火墙状态
+
+firewall-cmd --state
+
+停止firewall
+
+systemctl stop firewalld.service
+
+开启firewall
+systemctl start firewalld
+
+禁止firewall开机启动
+
+systemctl disable firewalld.service 
+
+开机启动防火墙
+
+systemctl enable firewalld
+
+
+supervisor 进程配置cesi 文件例子 
+
+[program:cesi] #程序名字不能重复
+
+directory =/root/cesi
+
+command=/root/cesi/venv/bin/python3 ./cesi/run.py --config-file /etc/cesi.conf 
+
+autostart=true
+
+
+autorestart=true
+
+startsecs=3
+user=root
+numprocs=1
+redirect_stderr=true
+
+stdout_logfile_backups = 7 
+stdout_logfile_maxbytes = 50MB  
+stdout_logfile=/root/cesi/cesi_stdout.log
+
+
+supervisor进程 web 管理界面cesi
+---第一种安装---
+
+参考官方REAME.md
+
+https://github.com/gamegos/cesi
+
+使用yarn install安装的时候，提示错误
+
+yarn config set ignore-engines true
+
+
+---第二种安装---
+
+pip install flask
+
+脚本安装配置cesi
+
+vi /home/cesi.sh
+
+
+
+cesi配置文件例子
+
+vi /etc/cesi.conf
+
+# This is the CeSI's own configuration.
+[cesi]
+# Database Uri
+database = "sqlite:///users.db"                         # Relative path
+# Etc
+#database = "sqlite:////opt/cesi/< version >/users.db"  # Absolute path
+#database = "postgres://<user>:<password>@localhost:5432/<database_name>"
+#database = "mysql+pymysql://<user>:<password>@localhost:3306/<database_name>"
+activity_log = "activity.log"   # File path for CeSI logs
+admin_username = "admin"        # Username of admin user
+admin_password = "admin"        # Password of admin user
+
+# This is the definition section for new supervisord node.
+# [[nodes]]
+# name = "api"          # (String) Unique name for supervisord node.
+# environment = ""      # (String) The environment name provides logical grouping of supervisord nodes. It can be used as filtering option in the UI.
+# username = ""         # (String) Username of the XML-RPC interface of supervisord Set nothing if no username is configured
+# password = ""         # (String) Password of the XML-RPC interface of supervisord. Set nothing if no username is configured
+# host = "127.0.0.1"    # (String) Host of the XML-RPC interface of supervisord
+# port = "9001"         # (String) Port of the XML-RPC interface of supervisord
+
+# Default supervisord nodes
+
+
+[[nodes]]
+name = "ecs-soms"
+environment = "soms"
+username = "admin"  #supervisord web 的用户名
+password = "admin" #密码
+host = "127.0.0.1"
+port = "9001"
+
+
+
+
+常用指令：
+supervisord --nodaemon 前台启动Supervisor服务
+supervisorctl -i 进入交互式Shell
+supervisorctl status 查看任务列表
+supervisorctl status helloworld 查看指定任务的状态
+supervisorctl stop/start/restart all 结束/启动/重启所有任务
+supervisorctl stop/start/restart helloworld 结束/启动/重启指定任务
+supervisorctl reroad 重新加载配置文件，不增减任务
+supervisorctl update all 重新加载配置文件，并进行必要的增减任务
+supervisorctl remove/add 移除/添加任务(配置文件中已经存在的任务)
+supervisorctl tail -f helloworld 实时查看任务的控制台输出
+supervisorctl tail -f helloworld stderr 实时查看任务的控制台错误输出
+supervisorctl reload 重启Supervisor服务
+supervisorctl fg helloworld 将任务拉到前台，此时Ctrl+C不会结束任务，而是将任务放回后台
+supervisorctl shutdown 终止Supervisor服务
+supervisorctl clear all 清楚所有进程的日志文件
+supervisorctl maintail -f 实时查看Supervisor服务的日志文件
+supervisorctl signal SIGTERM all 结束所有进程
+supervisorctl signal SIGKILL all 杀死所有进程
+supervisorctl --serverurl http://localhost:9001 status 管理远程Supervisor服务
+
+
+
+
+在运行时遇到的问题及解决:
+
+http://mtjo.net/portal/article/index/id/21/cid/4.html?page=3
+
+https://www.oschina.net/question/729460_141976
+
+https://blog.csdn.net/weixin_44777680/article/details/105607945
