@@ -1,31 +1,31 @@
-±Ê¼Ç:
+ç¬”è®°:
 
-mysql ÃÜÂë´íÎó
+mysql å¯†ç é”™è¯¯
 ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
 
-·½·¨Ò» ²éÕÒÈÕÖ¾ (linux ½â¾ö·½°¸):
+æ–¹æ³•ä¸€ æŸ¥æ‰¾æ—¥å¿— (linux è§£å†³æ–¹æ¡ˆ):
 
 vi /var/log/mysqld.log 
 
-²éÕÒÉú³ÉµÄËæ»úÃÜÂë
+æŸ¥æ‰¾ç”Ÿæˆçš„éšæœºå¯†ç 
 
-ÊäÈë£º/temporary password
+è¾“å…¥ï¼š/temporary password
 
- #»òÕß
+ #æˆ–è€…
 grep 'temporary password' /var/log/mysqld.log
 
-Èç¹ûÃ»ÓĞÕÒµ½ÃÜÂë
+å¦‚æœæ²¡æœ‰æ‰¾åˆ°å¯†ç 
 
-É¾³ıÔ­À´°²×°¹ıµÄmysql²ĞÁôµÄÊı¾İ£¨ÕâÒ»²½·Ç³£ÖØÒª£¬ÎÊÌâ¾Í³öÔÚÕâ£©
+åˆ é™¤åŸæ¥å®‰è£…è¿‡çš„mysqlæ®‹ç•™çš„æ•°æ®ï¼ˆè¿™ä¸€æ­¥éå¸¸é‡è¦ï¼Œé—®é¢˜å°±å‡ºåœ¨è¿™ï¼‰
 rm -rf /var/lib/mysql
 
 systemctl restart mysqld
 
 grep 'temporary password' /var/log/mysqld.log
 
-Ê¹ÓÃÁÙÊ±ÃÜÂëµÇÂ½£¬ĞŞ¸ÄÃÜÂë£¬Èç·½·¨¶ş
+ä½¿ç”¨ä¸´æ—¶å¯†ç ç™»é™†ï¼Œä¿®æ”¹å¯†ç ï¼Œå¦‚æ–¹æ³•äºŒ
 
-·½·¨¶ş ĞŞ¸ÄmysqlÃÜÂë(inux windows Í¨ÓÃ½â¾ö·½°¸ )
+æ–¹æ³•äºŒ ä¿®æ”¹mysqlå¯†ç (inux windows é€šç”¨è§£å†³æ–¹æ¡ˆ )
 
  mysql -u root -p
 
@@ -35,66 +35,66 @@ use mysql
 
 desc mysql 
 
-ÉèÖÃÃÜÂëµÄÑéÖ¤Ç¿¶ÈµÈ¼¶:
+è®¾ç½®å¯†ç çš„éªŒè¯å¼ºåº¦ç­‰çº§:
  set global validate_password_policy=LOW;
-ÃÜÂë³¤¶È:
+å¯†ç é•¿åº¦:
 set global validate_password_length=6;
-ĞŞ¸ÄrootÃÜÂëÓÀ²»¹ıÆÚ£º
+ä¿®æ”¹rootå¯†ç æ°¸ä¸è¿‡æœŸï¼š
 update user set authentication_string = password('123456')  where user = 'root';
 UPDATE user SET `password_expired`='N' where user='root';
 ALTER USER 'root'@'localhost' PASSWORD EXPIRE NEVER;
 
-flush privileges;    // ÖØĞÂ¼ÓÔØÈ¨ÏŞ±í
+flush privileges;    // é‡æ–°åŠ è½½æƒé™è¡¨
 
 
--------windos½â¾ö·½°¸----
+-------windosè§£å†³æ–¹æ¡ˆ----
 
-ĞÂ°²×°ºóÏÈ²»ÒªÔËĞĞmysql  
+æ–°å®‰è£…åå…ˆä¸è¦è¿è¡Œmysql  
 
-windos ¼ì²éÅäÖÃÎÄ¼ş
+windos æ£€æŸ¥é…ç½®æ–‡ä»¶
 mysql-5.7.29-winx64 my.ini 
 
 [mysqld]
 skip-grant-tables
-# ÉèÖÃ3306¶Ë¿Ú
+# è®¾ç½®3306ç«¯å£
 port=3306
-# ÉèÖÃmysqlµÄ°²×°Ä¿Â¼
+# è®¾ç½®mysqlçš„å®‰è£…ç›®å½•
 basedir=F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64
-# ÉèÖÃmysqlÊı¾İ¿âµÄÊı¾İµÄ´æ·ÅÄ¿Â¼
+# è®¾ç½®mysqlæ•°æ®åº“çš„æ•°æ®çš„å­˜æ”¾ç›®å½•
 datadir=F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64\data
-# ÔÊĞí×î´óÁ¬½ÓÊı
+# å…è®¸æœ€å¤§è¿æ¥æ•°
 max_connections=200
-# ÔÊĞíÁ¬½ÓÊ§°ÜµÄ´ÎÊı¡£ÕâÊÇÎªÁË·ÀÖ¹ÓĞÈË´Ó¸ÃÖ÷»úÊÔÍ¼¹¥»÷Êı¾İ¿âÏµÍ³
+# å…è®¸è¿æ¥å¤±è´¥çš„æ¬¡æ•°ã€‚è¿™æ˜¯ä¸ºäº†é˜²æ­¢æœ‰äººä»è¯¥ä¸»æœºè¯•å›¾æ”»å‡»æ•°æ®åº“ç³»ç»Ÿ
 max_connect_errors=10
-# ·şÎñ¶ËÊ¹ÓÃµÄ×Ö·û¼¯Ä¬ÈÏÎªUTF8
+# æœåŠ¡ç«¯ä½¿ç”¨çš„å­—ç¬¦é›†é»˜è®¤ä¸ºUTF8
 character-set-server=utf8
-# ´´½¨ĞÂ±íÊ±½«Ê¹ÓÃµÄÄ¬ÈÏ´æ´¢ÒıÇæ
+# åˆ›å»ºæ–°è¡¨æ—¶å°†ä½¿ç”¨çš„é»˜è®¤å­˜å‚¨å¼•æ“
 default-storage-engine=INNODB
-# Ä¬ÈÏÊ¹ÓÃ¡°mysql_native_password¡±²å¼şÈÏÖ¤
+# é»˜è®¤ä½¿ç”¨â€œmysql_native_passwordâ€æ’ä»¶è®¤è¯
 default_authentication_plugin=mysql_native_password
 [mysql]
-# ÉèÖÃmysql¿Í»§¶ËÄ¬ÈÏ×Ö·û¼¯
+# è®¾ç½®mysqlå®¢æˆ·ç«¯é»˜è®¤å­—ç¬¦é›†
 default-character-set=utf8
 [client]
-# ÉèÖÃmysql¿Í»§¶ËÁ¬½Ó·şÎñ¶ËÊ±Ä¬ÈÏÊ¹ÓÃµÄ¶Ë¿Ú
+# è®¾ç½®mysqlå®¢æˆ·ç«¯è¿æ¥æœåŠ¡ç«¯æ—¶é»˜è®¤ä½¿ç”¨çš„ç«¯å£
 port=3306
 default-character-set=utf8
 
-¼ì²é»·¾³±äÁ¿
+æ£€æŸ¥ç¯å¢ƒå˜é‡
 path      F:\Download\db\mysql-5.7.29-winx64\mysql-5.7.29-winx64\bin
 
-ÉèÖÃºÃÅäÖÃÎÄ¼şºó£º
-¹ÜÀíÔ±ÔËĞĞcmd
+è®¾ç½®å¥½é…ç½®æ–‡ä»¶åï¼š
+ç®¡ç†å‘˜è¿è¡Œcmd
 
-¹Ø±Õ·şÎñÊÇ£ºnet stop mysql 
+å…³é—­æœåŠ¡æ˜¯ï¼šnet stop mysql 
 
-mysqld --initialize   #Ö±½Ó³õÊ¼»¯mysql£¬Éú³ÉdataÎÄ¼ş¼ĞÖĞµÄÎÄ¼ş¡£
+mysqld --initialize   #ç›´æ¥åˆå§‹åŒ–mysqlï¼Œç”Ÿæˆdataæ–‡ä»¶å¤¹ä¸­çš„æ–‡ä»¶ã€‚
 
-mysqld -install          #°²×°mysql
+mysqld -install          #å®‰è£…mysql
 
-net start mysql          #Æô¶¯·şÎñÆ÷
+net start mysql          #å¯åŠ¨æœåŠ¡å™¨
 
-ĞŞ¸ÄÃÜÂëÏêÏ¸£º
+ä¿®æ”¹å¯†ç è¯¦ç»†ï¼š
 
 https://blog.csdn.net/l_o_s/article/details/79672194
 
@@ -102,9 +102,9 @@ https://blog.csdn.net/l_o_s/article/details/79672194
 
 
 
-supervisor°²×°
-·½·¨Ò»¡¢Ê¹ÓÃyumÃüÁî°²×°£¨ÍÆ¼ö£©
-$ sudo su - #ÇĞ»»ÎªrootÓÃ»§
+supervisorå®‰è£…
+æ–¹æ³•ä¸€ã€ä½¿ç”¨yumå‘½ä»¤å®‰è£…ï¼ˆæ¨èï¼‰
+$ sudo su - #åˆ‡æ¢ä¸ºrootç”¨æˆ·
 
 
 
@@ -117,27 +117,27 @@ $ sudo su - #ÇĞ»»ÎªrootÓÃ»§
 # systemctl enable supervisord 
 systemctl enable supervisord.service
 
-# ¿ª»ú×ÔÆô¶¯
+# å¼€æœºè‡ªå¯åŠ¨
 # 
 
 systemctl start supervisord 
 systemctl start supervisord.service
 
-# ²é¿´Æô¶¯supervisord·şÎñ
+# æŸ¥çœ‹å¯åŠ¨supervisordæœåŠ¡
 
 
 # systemctl status supervisord
  ps -aux|grep supervisord
 
- # ²é¿´supervisord·şÎñ×´Ì¬
+ # æŸ¥çœ‹supervisordæœåŠ¡çŠ¶æ€
 
-# ps -ef|grep supervisord # ²é¿´ÊÇ·ñ´æÔÚsupervisord½ø³Ì
+# ps -ef|grep supervisord # æŸ¥çœ‹æ˜¯å¦å­˜åœ¨supervisordè¿›ç¨‹
 
-·½·¨Ò»¡¢Ô´Âë°²×°£¨Ê¡ÊÂµÄ²»ÍÆ¼ö£©
+æ–¹æ³•ä¸€ã€æºç å®‰è£…ï¼ˆçœäº‹çš„ä¸æ¨èï¼‰
 https://pypi.org/project/supervisor/#files
 
 
-supervisor ĞŞ¸Ä¼ÓÔØÅäÖÃÂ·¾¶
+supervisor ä¿®æ”¹åŠ è½½é…ç½®è·¯å¾„å’Œwebè®¿é—®
 vi /etc/supervisord.conf 
 
 [include]
@@ -145,38 +145,48 @@ files = /data/supervisord.d/*.conf
 
 /etc/supervisord.d/*.conf
 
+[inet_http_server]         ; inet (TCP) server disabled by default
+port=127.0.0.1:9001        ; (ip_address:port specifier, *:port for all iface)
+;username=user              ; (default is no username (open server))
+;password=123               ; (default is no password (open server))
 
-spawn ÔÚexpectÀïÃæ
 
-°²×°expect£º
+
+å°†é€—å·å–æ¶ˆåˆ™ç”Ÿæ•ˆï¼Œâ€˜;â€™ç›¸å½“äºæ˜¯æ³¨é‡Š
+
+supervisorctl --serverurl http://localhost:9001 status
+
+spawn åœ¨expecté‡Œé¢
+
+å®‰è£…expectï¼š
 yum -y install expect
 
 
-centos²é¿´·À»ğÇ½:
+centosæŸ¥çœ‹é˜²ç«å¢™:
 
-²é¿´·À»ğÇ½×´Ì¬
+æŸ¥çœ‹é˜²ç«å¢™çŠ¶æ€
 
 firewall-cmd --state
 
-Í£Ö¹firewall
+åœæ­¢firewall
 
 systemctl stop firewalld.service
 
-¿ªÆôfirewall
+å¼€å¯firewall
 systemctl start firewalld
 
-½ûÖ¹firewall¿ª»úÆô¶¯
+ç¦æ­¢firewallå¼€æœºå¯åŠ¨
 
 systemctl disable firewalld.service 
 
-¿ª»úÆô¶¯·À»ğÇ½
+å¼€æœºå¯åŠ¨é˜²ç«å¢™
 
 systemctl enable firewalld
 
 
-supervisor ½ø³ÌÅäÖÃcesi ÎÄ¼şÀı×Ó 
+supervisor è¿›ç¨‹é…ç½®cesi æ–‡ä»¶ä¾‹å­ 
 
-[program:cesi] #³ÌĞòÃû×Ö²»ÄÜÖØ¸´
+[program:cesi] #ç¨‹åºåå­—ä¸èƒ½é‡å¤
 
 directory =/root/cesi
 
@@ -197,29 +207,29 @@ stdout_logfile_maxbytes = 50MB
 stdout_logfile=/root/cesi/cesi_stdout.log
 
 
-supervisor½ø³Ì web ¹ÜÀí½çÃæcesi
----µÚÒ»ÖÖ°²×°---
+supervisorè¿›ç¨‹ web ç®¡ç†ç•Œé¢cesi
+---ç¬¬ä¸€ç§å®‰è£…---
 
-²Î¿¼¹Ù·½REAME.md
+å‚è€ƒå®˜æ–¹REAME.md
 
 https://github.com/gamegos/cesi
 
-Ê¹ÓÃyarn install°²×°µÄÊ±ºò£¬ÌáÊ¾´íÎó
+ä½¿ç”¨yarn installå®‰è£…çš„æ—¶å€™ï¼Œæç¤ºé”™è¯¯
 
 yarn config set ignore-engines true
 
 
----µÚ¶şÖÖ°²×°---
+---ç¬¬äºŒç§å®‰è£…---
 
 pip install flask
 
-½Å±¾°²×°ÅäÖÃcesi
+è„šæœ¬å®‰è£…é…ç½®cesi
 
 vi /home/cesi.sh
 
 
 
-cesiÅäÖÃÎÄ¼şÀı×Ó
+cesié…ç½®æ–‡ä»¶ä¾‹å­
 
 vi /etc/cesi.conf
 
@@ -250,39 +260,39 @@ admin_password = "admin"        # Password of admin user
 [[nodes]]
 name = "ecs-soms"
 environment = "soms"
-username = "admin"  #supervisord web µÄÓÃ»§Ãû
-password = "admin" #ÃÜÂë
+username = "admin"  #supervisord web çš„ç”¨æˆ·å
+password = "admin" #å¯†ç 
 host = "127.0.0.1"
 port = "9001"
 
 
 
 
-³£ÓÃÖ¸Áî£º
-supervisord --nodaemon Ç°Ì¨Æô¶¯Supervisor·şÎñ
-supervisorctl -i ½øÈë½»»¥Ê½Shell
-supervisorctl status ²é¿´ÈÎÎñÁĞ±í
-supervisorctl status helloworld ²é¿´Ö¸¶¨ÈÎÎñµÄ×´Ì¬
-supervisorctl stop/start/restart all ½áÊø/Æô¶¯/ÖØÆôËùÓĞÈÎÎñ
-supervisorctl stop/start/restart helloworld ½áÊø/Æô¶¯/ÖØÆôÖ¸¶¨ÈÎÎñ
-supervisorctl reroad ÖØĞÂ¼ÓÔØÅäÖÃÎÄ¼ş£¬²»Ôö¼õÈÎÎñ
-supervisorctl update all ÖØĞÂ¼ÓÔØÅäÖÃÎÄ¼ş£¬²¢½øĞĞ±ØÒªµÄÔö¼õÈÎÎñ
-supervisorctl remove/add ÒÆ³ı/Ìí¼ÓÈÎÎñ(ÅäÖÃÎÄ¼şÖĞÒÑ¾­´æÔÚµÄÈÎÎñ)
-supervisorctl tail -f helloworld ÊµÊ±²é¿´ÈÎÎñµÄ¿ØÖÆÌ¨Êä³ö
-supervisorctl tail -f helloworld stderr ÊµÊ±²é¿´ÈÎÎñµÄ¿ØÖÆÌ¨´íÎóÊä³ö
-supervisorctl reload ÖØÆôSupervisor·şÎñ
-supervisorctl fg helloworld ½«ÈÎÎñÀ­µ½Ç°Ì¨£¬´ËÊ±Ctrl+C²»»á½áÊøÈÎÎñ£¬¶øÊÇ½«ÈÎÎñ·Å»ØºóÌ¨
-supervisorctl shutdown ÖÕÖ¹Supervisor·şÎñ
-supervisorctl clear all Çå³şËùÓĞ½ø³ÌµÄÈÕÖ¾ÎÄ¼ş
-supervisorctl maintail -f ÊµÊ±²é¿´Supervisor·şÎñµÄÈÕÖ¾ÎÄ¼ş
-supervisorctl signal SIGTERM all ½áÊøËùÓĞ½ø³Ì
-supervisorctl signal SIGKILL all É±ËÀËùÓĞ½ø³Ì
-supervisorctl --serverurl http://localhost:9001 status ¹ÜÀíÔ¶³ÌSupervisor·şÎñ
+å¸¸ç”¨æŒ‡ä»¤ï¼š
+supervisord --nodaemon å‰å°å¯åŠ¨SupervisoræœåŠ¡
+supervisorctl -i è¿›å…¥äº¤äº’å¼Shell
+supervisorctl status æŸ¥çœ‹ä»»åŠ¡åˆ—è¡¨
+supervisorctl status helloworld æŸ¥çœ‹æŒ‡å®šä»»åŠ¡çš„çŠ¶æ€
+supervisorctl stop/start/restart all ç»“æŸ/å¯åŠ¨/é‡å¯æ‰€æœ‰ä»»åŠ¡
+supervisorctl stop/start/restart helloworld ç»“æŸ/å¯åŠ¨/é‡å¯æŒ‡å®šä»»åŠ¡
+supervisorctl reroad é‡æ–°åŠ è½½é…ç½®æ–‡ä»¶ï¼Œä¸å¢å‡ä»»åŠ¡
+supervisorctl update all é‡æ–°åŠ è½½é…ç½®æ–‡ä»¶ï¼Œå¹¶è¿›è¡Œå¿…è¦çš„å¢å‡ä»»åŠ¡
+supervisorctl remove/add ç§»é™¤/æ·»åŠ ä»»åŠ¡(é…ç½®æ–‡ä»¶ä¸­å·²ç»å­˜åœ¨çš„ä»»åŠ¡)
+supervisorctl tail -f helloworld å®æ—¶æŸ¥çœ‹ä»»åŠ¡çš„æ§åˆ¶å°è¾“å‡º
+supervisorctl tail -f helloworld stderr å®æ—¶æŸ¥çœ‹ä»»åŠ¡çš„æ§åˆ¶å°é”™è¯¯è¾“å‡º
+supervisorctl reload é‡å¯SupervisoræœåŠ¡
+supervisorctl fg helloworld å°†ä»»åŠ¡æ‹‰åˆ°å‰å°ï¼Œæ­¤æ—¶Ctrl+Cä¸ä¼šç»“æŸä»»åŠ¡ï¼Œè€Œæ˜¯å°†ä»»åŠ¡æ”¾å›åå°
+supervisorctl shutdown ç»ˆæ­¢SupervisoræœåŠ¡
+supervisorctl clear all æ¸…æ¥šæ‰€æœ‰è¿›ç¨‹çš„æ—¥å¿—æ–‡ä»¶
+supervisorctl maintail -f å®æ—¶æŸ¥çœ‹SupervisoræœåŠ¡çš„æ—¥å¿—æ–‡ä»¶
+supervisorctl signal SIGTERM all ç»“æŸæ‰€æœ‰è¿›ç¨‹
+supervisorctl signal SIGKILL all æ€æ­»æ‰€æœ‰è¿›ç¨‹
+supervisorctl --serverurl http://localhost:9001 status ç®¡ç†è¿œç¨‹SupervisoræœåŠ¡
 
 
 
 
-ÔÚÔËĞĞÊ±Óöµ½µÄÎÊÌâ¼°½â¾ö:
+åœ¨è¿è¡Œæ—¶é‡åˆ°çš„é—®é¢˜åŠè§£å†³:
 
 http://mtjo.net/portal/article/index/id/21/cid/4.html?page=3
 
