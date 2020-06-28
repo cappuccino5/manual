@@ -131,3 +131,130 @@ func getContinuity(poker []int32) []int32 {
 	}
 	return poker1
 }
+// ddz 结算
+
+func (*Logic) GetSystemLoss(dizChairID int32, userList sync.Map, currentMultiple int32, isDizWins bool) (float32, map[int32]float32, map[int32]float32) {
+	userListLoss := make(map[int32]float32)
+	userTax := make(map[int32]float32)
+	var systemScore float32
+
+	var sumMultiple = currentMultiple
+	if isDizWins {
+		userListLoss[dizChairID] = float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore * 2
+		tempScore := float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore * 2
+		var winScore float32
+		userID, ok := userList.Load(dizChairID)
+		if ok {
+			userItem, ok := user.List.Load(userID)
+			if ok {
+				if store.GameControl.GetGameInfo().DeductionsType == 0 {
+					if userItem.(*user.Item).UserGold-userListLoss[dizChairID] <= 0 {
+						winScore = userItem.(*user.Item).UserGold
+					}
+				} else {
+					if userItem.(*user.Item).UserDiamond-userListLoss[dizChairID] <= 0 {
+						winScore = userItem.(*user.Item).UserDiamond
+					}
+				}
+			}
+		}
+		userList.Range(func(key, value interface{}) bool {
+			if key.(int32) == dizChairID {
+				return true
+			}
+			userListLoss[key.(int32)] = -float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore
+			userItem, ok := user.List.Load(value)
+			if ok {
+				if store.GameControl.GetGameInfo().DeductionsType == 0 {
+					if userItem.(*user.Item).UserGold+userListLoss[key.(int32)] <= 0 {
+						tempScore += userItem.(*user.Item).UserGold + userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = -userItem.(*user.Item).UserGold
+					} else if winScore > 0 && (userItem.(*user.Item).UserGold+userListLoss[key.(int32)] >= 0 || winScore/2 >= userItem.(*user.Item).UserGold) {
+						tempScore += (winScore / 2) + userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = -winScore / 2
+					}
+				} else {
+					if userItem.(*user.Item).UserDiamond+userListLoss[key.(int32)] <= 0 {
+						tempScore += userItem.(*user.Item).UserGold - userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = -userItem.(*user.Item).UserDiamond
+					} else if winScore > 0 && (userItem.(*user.Item).UserDiamond > userListLoss[key.(int32)] || winScore/2 >= userItem.(*user.Item).UserDiamond) {
+						tempScore += winScore/2 + userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = -winScore / 2
+					}
+				}
+			}
+			return true
+		})
+		userListLoss[dizChairID] = tempScore
+	} else {
+		userListLoss[dizChairID] = -float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore * 2
+		userID, ok := userList.Load(dizChairID)
+		if ok {
+			userItem, ok := user.List.Load(userID)
+			if ok {
+				if store.GameControl.GetGameInfo().DeductionsType == 0 {
+					if userItem.(*user.Item).UserGold+userListLoss[dizChairID] <= 0 {
+						userListLoss[dizChairID] = userItem.(*user.Item).UserGold
+					}
+				} else {
+					if userItem.(*user.Item).UserDiamond+userListLoss[dizChairID] <= 0 {
+						userListLoss[dizChairID] = userItem.(*user.Item).UserDiamond
+					}
+				}
+			}
+		}
+		var tempScore = float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore * 2
+		userList.Range(func(key, value interface{}) bool {
+			if key.(int32) == dizChairID {
+				return true
+			}
+			userListLoss[key.(int32)] = float32(sumMultiple) * store.GameControl.GetGameInfo().CellScore
+			userItem, ok := user.List.Load(value)
+			if ok {
+				if store.GameControl.GetGameInfo().DeductionsType == 0 {
+
+					if userListLoss[dizChairID] > 0 && (userItem.(*user.Item).UserGold > userListLoss[key.(int32)] || userListLoss[dizChairID]/2 >= userItem.(*user.Item).UserGold) {
+						tempScore += userListLoss[dizChairID]/2 - userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = userListLoss[dizChairID] / 2
+					} else if userItem.(*user.Item).UserGold <= userListLoss[key.(int32)] {
+						tempScore += userItem.(*user.Item).UserGold - userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = userItem.(*user.Item).UserGold
+					}
+				} else {
+					if userListLoss[dizChairID] > 0 && (userItem.(*user.Item).UserDiamond > userListLoss[key.(int32)] || userListLoss[dizChairID]/2 >= userItem.(*user.Item).UserDiamond) {
+						tempScore += userListLoss[dizChairID]/2 - userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = userListLoss[dizChairID] / 2
+					} else if userItem.(*user.Item).UserDiamond <= userListLoss[key.(int32)] {
+						tempScore += userItem.(*user.Item).UserGold - userListLoss[key.(int32)]
+						userListLoss[key.(int32)] = userItem.(*user.Item).UserDiamond
+					}
+				}
+			}
+			return true
+		})
+
+		userListLoss[dizChairID] = -tempScore
+	}
+
+	for chairID, score := range userListLoss {
+		uid, ok := userList.Load(chairID)
+		if ok {
+			userItem, ok := user.List.Load(uid.(int32))
+			if ok {
+				//	机器人
+				if userItem.(*user.Item).BatchID != -1 {
+					systemScore += score
+				}
+			}
+		}
+
+		// 记录税收
+		if score > 0 {
+			userTax[chairID] += score * store.GameControl.GetGameInfo().RevenueRatio
+			userListLoss[chairID] = userListLoss[chairID] - userTax[chairID]
+		}
+	}
+
+	return systemScore, userListLoss, userTax
+}
+
