@@ -1,5 +1,14 @@
 笔记:
 
+
+cmake 官网下载路径
+
+首先，我是下载的“二进制”文件，不是源代码（师兄说源代码还要编译，直接下二进制的吧！）。
+其次，我下的是“.zip”文件，不是“.msi”格式。下面主要介绍“.zip”格式的使用方法。
+https://cmake.org/download/
+
+
+
 mysql 密码错误
 ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
 
