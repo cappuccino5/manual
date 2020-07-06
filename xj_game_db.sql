@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : vir_local
+ Source Server         : virtual
  Source Server Type    : MySQL
- Source Server Version : 50729
- Source Host           : 192.168.132.128:3306
+ Source Server Version : 50725
+ Source Host           : 192.168.254.128:3306
  Source Schema         : xj_game_db
 
  Target Server Type    : MySQL
- Target Server Version : 50729
+ Target Server Version : 50725
  File Encoding         : 65001
 
- Date: 04/07/2020 19:02:25
+ Date: 06/07/2020 09:23:10
 */
 
 SET NAMES utf8mb4;
@@ -257,7 +257,7 @@ CREATE TABLE `base_menu`  (
   `alias` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '别名',
   `api_path` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '接口路径',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 65 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '菜单列表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 62 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '菜单列表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of base_menu
@@ -1024,206 +1024,206 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_EnterGame`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_EnterGame`(IN `intUserID` int, IN `intKindID` int, IN `intGameID` varchar(32), IN strMachineID varchar(64), IN `strClientIP` varchar(15))
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_EnterGame`(IN `int_user_id` int, IN `int_kind_id` int, IN `int_game_id` varchar(32), IN str_machine_id varchar(64), IN `str_client_ip` varchar(15))
     COMMENT '进入游戏房间'
 exitpro:BEGIN
 	#Routine body goes here...
 	
-	DECLARE errNUm INT DEFAULT 0;	-- 事务成功失败标识
-	DECLARE errMsg VARCHAR(1000);	-- 事务错误信息
+	DECLARE err_num INT DEFAULT 0;	-- 事务成功失败标识
+	DECLARE err_msg VARCHAR(1000);	-- 事务错误信息
 	
 	-- 基本信息
-	DECLARE paraUserID INT;	
-	DECLARE paraFaceID SMALLINT; -- 头像id
-	DECLARE paraAccounts VARCHAR(31); -- 用户账号
-	DECLARE paraNickName VARCHAR(31); 	-- 昵称
-	DECLARE paraUnderWrite VARCHAR(100);  -- 签名
-	DECLARE paraPlayTimeCount INT;
-	DECLARE paraMobile VARCHAR(11);	
-	DECLARE paraLevelNum INT;
-	DECLARE paraUserType INT;
+	DECLARE para_user_id INT;	
+	DECLARE para_face_id SMALLINT; -- 头像id
+	DECLARE para_accounts VARCHAR(31); -- 用户账号
+	DECLARE para_nick_name VARCHAR(31); 	-- 昵称
+	DECLARE para_under_write VARCHAR(100);  -- 签名
+	DECLARE para_play_time_count INT;
+	DECLARE para_mobile VARCHAR(11);	
+	DECLARE para_level_num INT;
+	DECLARE para_user_type INT;
 		
 	-- 用户额外信息
-	DECLARE paraRoleID INT;		-- 角色标识
-	DECLARE paraSuitID INT;		-- 套装标识
-	DECLARE paraPhotoFrameID INT; -- 头相框标识
+	DECLARE para_role_id INT;		-- 角色标识
+	DECLARE para_suit_id INT;		-- 套装标识
+	DECLARE para_photo_frame_id INT; -- 头相框标识
 	
 	-- 财富变量
-	DECLARE paraGoldCoin DECIMAL(18,3);	-- 金币
-	DECLARE paraDiamond INT;	-- 钻石
+	DECLARE para_gold_coin DECIMAL(18,3);	-- 金币
+	DECLARE para_diamond INT;	-- 钻石
 	
 	-- 辅助变量
-	DECLARE paraEnjoinLogon INT;
-	DECLARE paraGender TINYINT;	-- 性别：0女，1男
+	DECLARE para_enjoin_logon INT;
+	DECLARE para_gender TINYINT;	-- 性别：0女，1男
 	
 	-- 查询用户
-	DECLARE paraNullity TINYINT;
-	DECLARE paraUserRight INT;
-	DECLARE paraLogonPass CHAR(32);
-	DECLARE paraInsurePass CHAR(32);
-	DECLARe paraLastLogonIP  CHAR(15);
-	DECLARE paraLastLogonMachine  CHAR(64);
-	DECLARE paraMoorMachine  TINYINT;
-	DECLARE paraLockServerID INT;
-	DECLARE paraBinderCardNo VARCHAR(100);		
-	DECLARE paraHeadImageUrl VARCHAR(100);
+	DECLARE para_nullity TINYINT;
+	DECLARE para_user_right INT;
+	DECLARE para_logon_pass CHAR(32);
+	DECLARE para_insure_pass CHAR(32);
+	DECLARe para_last_logon_ip  CHAR(15);
+	DECLARE para_last_logon_machine  CHAR(64);
+	DECLARE para_moor_machine  TINYINT;
+	DECLARE para_lock_server_id INT;
+	DECLARE para_binder_card_no VARCHAR(100);		
+	DECLARE para_head_image_url VARCHAR(100);
 	
-	DECLARE paraDateID INT;
+	DECLARE para_date_id INT;
 	
-	DECLARE paraKindID INT;	
-	DECLARE paraRoomCard INT;
+	DECLARE para_kind_id INT;	
+	DECLARE para_room_card INT;
 	
-	DECLARE paraLockKindID INT;
-	DECLARE paraLockGameID INT;	
+	DECLARE para_lock_kind_id INT;
+	DECLARE para_lock_game_id INT;	
 	
-	DECLARE paraKindName VARCHAR(31);	
-	DECLARE paraGameName VARCHAR(31);	
-	DECLARE paraDeductionsType	TINYINT;
-	DECLARE paraEnterScore DECIMAL;
+	DECLARE para_kind_name VARCHAR(31);	
+	DECLARE para_game_name VARCHAR(31);	
+	DECLARE para_deductions_type	TINYINT;
+	DECLARE para_enter_score DECIMAL;
 	
-	DECLARE paraMinEnterScore DECIMAL;
+	DECLARE para_minenter_score DECIMAL;
 	
 	
 -- 	-- 执行sql异常
 -- 	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION 
 -- 	BEGIN		
 -- 		GET DIAGNOSTICS CONDITION 1 
--- 			errNUm = RETURNED_SQLSTATE,errMsg= MESSAGE_TEXT;
+-- 			err_num = RETURNED_SQLSTATE,err_msg= MESSAGE_TEXT;
 -- 	END;
 -- 	-- 开始事务
 -- 	START TRANSACTION;	
 		-- 系统暂停
-		SET paraEnjoinLogon =(SELECT StatusValue FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon');
-		IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-			SELECT 1 AS errorCode, (SELECT StatusString FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon')  AS errorMsg;	
+		SET para_enjoin_logon =(SELECT status_value FROM system_status_info WHERE status_name='enjoin_logon');
+		IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+			SELECT 1 AS error_code, (SELECT StatusString FROM system_status_info WHERE status_name='enjoin_logon')  AS error_msg;	
 			LEAVE exitpro;
 		END IF;
 		
 		-- 效验地址
-		SET paraEnjoinLogon = (SELECT EnjoinLogon FROM xjaccountsdb.ConfineAddress WHERE AddrString=strClientIP AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-		IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-			SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+		SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_address WHERE AddrString=str_client_ip AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+		IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+			SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 			LEAVE exitpro;
 		END IF;
 			
 		-- 效验机器
-		SET paraEnjoinLogon = (SELECT EnjoinLogon FROM xjaccountsdb.ConfineMachine WHERE MachineSerial=strMachineID AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-		IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-			SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+		SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_machine WHERE MachineSerial=str_machine_id AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+		IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+			SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 			LEAVE exitpro;
 		END IF;
 		
 		-- 查询用户
-		SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,UserRight,HeadImageUrl,LastLogonMachine,UserType
-		INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraUserRight,paraHeadImageUrl,paraLastLogonMachine,paraUserType
-		FROM xjaccountsdb.AccountsInfo WHERE UserID=intUserID;
+		SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,Level_num,user_right,head_image_url,last_logon_machine,UserType
+		INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_user_right,para_head_image_url,para_last_logon_machine,para_user_type
+		FROM accounts_info WHERE user_id=int_user_id;
 		 
 		 
 		-- 查询用户
-		IF paraUserID IS NULL THEN
-			SELECT 3 AS errorCode, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！' AS errorMsg;	
+		IF para_user_id IS NULL THEN
+			SELECT 3 AS error_code, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！' AS error_msg;	
 			LEAVE exitpro;
 		END IF;
 
 		-- 帐号禁止
-		IF paraNullity<>0 THEN
-			SELECT 3 AS errorCode, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！'  AS errorMsg;	
+		IF para_nullity<>0 THEN
+			SELECT 3 AS error_code, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！'  AS error_msg;	
 			LEAVE exitpro;
 		END	IF;	
 			
 		-- 固定机器
-		IF paraMoorMachine=1 THEN
-			IF paraLastLogonMachine<>strMachineID THEN
-				SELECT 3 AS errorCode, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS errorMsg;
+		IF para_moor_machine=1 THEN
+			IF para_last_logon_machine<>str_machine_id THEN
+				SELECT 3 AS error_code, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS error_msg;
 				LEAVE exitpro;
 			END IF;
 		END IF;
 		
 		-- 查询金币
-		SELECT GoldCoin, Diamond INTO paraGoldCoin,paraDiamond FROM xjtreasuredb.GameScoreInfo WHERE UserID= paraUserID;
+		SELECT gold_coin, diamond INTO para_gold_coin,para_diamond FROM game_score_info WHERE user_id= para_user_id;
 		
 -- 		-- 锁定解除
--- 		DELETE FROM xjaccountsdb.AccountPlayingLock WHERE UserID= intUserID AND GameID=intGameID;	
--- 		SELECT KindID, GameID INTO paraLockKindID , paraLockGameID FROM xjaccountsdb.AccountPlayingLock WHERE UserID=intUserID;
+-- 		DELETE FROM xjaccountsdb.AccountPlayingLock WHERE user_id= int_user_id AND game_id=int_game_id;	
+-- 		SELECT kind_id, game_id INTO para_lock_kind_id , para_lock_game_id FROM xjaccountsdb.AccountPlayingLock WHERE user_id=int_user_id;
 -- 		-- 锁定判断
--- 		IF paraLockKindID IS NOT NULL AND paraLockGameID IS NOT NULL THEN
+-- 		IF para_lock_kind_id IS NOT NULL AND para_lock_game_id IS NOT NULL THEN
 -- 		
 -- 			-- 查询类型
--- 			IF paraLockKindID<>0 THEN
+-- 			IF para_lock_kind_id<>0 THEN
 -- 				-- 查询信息
--- 				SELECT GameName ,KindName  INTO paraGameName ,paraKindName FROM xjplatformdb.GameRoomConfig WHERE GameID=paraLockGameID;
+-- 				SELECT game_name ,kind_name  INTO para_game_name ,para_kind_name FROM game_room_config WHERE game_id=para_lock_game_id;
 -- 
 -- 				-- 错误信息
--- 				IF paraKindName IS NULL THEN SET paraKindName='未知游戏';END IF;
--- 				IF paraGameName IS NULL THEN SET paraGameName='未知房间';END IF;
+-- 				IF para_kind_name IS NULL THEN SET para_kind_name='未知游戏';END IF;
+-- 				IF para_game_name IS NULL THEN SET para_game_name='未知房间';END IF;
 -- 				
--- 				SELECT 4 AS errorCode, CONCAT('您正在 [ ',paraKindName,' ] 的 [ ',paraGameName,' ] 游戏房间中，不能同时再进入此游戏房间！') AS errorMsg;
+-- 				SELECT 4 AS error_code, CONCAT('您正在 [ ',para_kind_name,' ] 的 [ ',para_game_name,' ] 游戏房间中，不能同时再进入此游戏房间！') AS error_msg;
 -- 				LEAVE exitpro;	
 -- 			ELSE
 -- 				-- 提示消息
--- 				SELECT 4 AS errorCode, '您正在进行保险柜处理过程中，暂时无法进入此游戏房间！'  AS errorMsg;
+-- 				SELECT 4 AS error_code, '您正在进行保险柜处理过程中，暂时无法进入此游戏房间！'  AS error_msg;
 -- 				LEAVE exitpro;
 -- 			END IF;
 -- 		END IF;
 			
 		-- 房间进入判断---------	
 		-- 扣费类型
-		SELECT DeductionsType, MinEnterScore INTO paraDeductionsType, paraMinEnterScore FROM xjplatformdb.GameRoomConfig WHERE GameID=intGameID;	
+		SELECT deductions_type, minenter_score INTO para_deductions_type, para_minenter_score FROM game_room_config WHERE game_id=int_game_id;	
 		
-		IF paraUserType <> 1 THEN
-			IF paraDeductionsType = 0 THEN
-				IF paraMinEnterScore > paraGoldCoin  THEN
-					SELECT 3 AS errorCode, '抱歉，您的金币数目不能低于最低限制额度' AS errorMsg;
+		IF para_user_type <> 1 THEN
+			IF para_deductions_type = 0 THEN
+				IF para_minenter_score > para_gold_coin  THEN
+					SELECT 3 AS error_code, '抱歉，您的金币数目不能低于最低限制额度' AS error_msg;
 					LEAVE exitpro;
 				ELSE
-					SET paraEnterScore = paraGoldCoin;				
+					SET para_enter_score = para_gold_coin;				
 				END IF;
 			ELSE
-				IF paraMinEnterScore > paraDiamond THEN
-					SELECT 3 AS errorCode, '抱歉，您的钻石数目不能低于最低限制额度' AS errorMsg;
+				IF para_minenter_score > para_diamond THEN
+					SELECT 3 AS error_code, '抱歉，您的钻石数目不能低于最低限制额度' AS error_msg;
 					LEAVE exitpro;
 				ELSE
-					SET paraEnterScore = paraDiamond;
+					SET para_enter_score = para_diamond;
 				END IF;
 			END IF;
 		END IF;
 		
 		-- 进入记录
-		-- INSERT xjtreasuredb.RecordUserInout (UserID, EnterScore, KindID, GameID, EnterClientIP, EnterMachine,EnterTime)
-		-- VALUES (intUserID, paraEnterScore, intKindID, intGameID, strClientIP, strMachineID,NOW());
+		-- INSERT xjtreasuredb.RecordUserInout (user_id, enter_score, kind_id, game_id, EnterClientIP, EnterMachine,EnterTime)
+		-- VALUES (int_user_id, para_enter_score, int_kind_id, int_game_id, str_client_ip, str_machine_id,NOW());
 		
 		-- 插入锁表
-		-- INSERT xjaccountsdb.AccountPlayingLock(UserID, GameID, KindID,EnterIP) VALUES (intUserID, intGameID, intKindID, strClientIP);	
+		-- INSERT xjaccountsdb.AccountPlayingLock(user_id, game_id, kind_id,EnterIP) VALUES (int_user_id, int_game_id, int_kind_id, str_client_ip);	
 		
 		-- 更新信息
-		UPDATE xjtreasuredb.GameScoreInfo SET AllLogonTimes=AllLogonTimes+1 WHERE UserID=intUserID;
+		UPDATE game_score_info SET all_logon_times=all_logon_times+1 WHERE user_id=int_user_id;
 		
 		-- 登录统计
-		SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED); 
+		SET para_date_id = CAST(CAST(NOW() AS date) AS UNSIGNED); 
 		-- 插入记录
-		UPDATE xjtreasuredb.SystemStreamInfo SET LogonCount=LogonCount+1 WHERE DateID=paraDateID AND KindID=intKindID AND GameID=intGameID;
+		UPDATE system_stream_info SET logon_count=logon_count+1 WHERE date_id=para_date_id AND kind_id=int_kind_id AND game_id=int_game_id;
 		IF ROW_COUNT()=0 THEN 
-			INSERT xjtreasuredb.SystemStreamInfo (DateID, KindID, GameID, LogonCount) VALUES (paraDateID, intKindID, intGameID, 1);
+			INSERT system_stream_info (date_id, kind_id, game_id, logon_count) VALUES (para_date_id, int_kind_id, int_game_id, 1);
 		END IF;
 		
 		-- 人物形象
-		SELECT RoleID,SuitID,PhotoFrameID  INTO paraRoleID,paraSuitID,paraPhotoFrameID FROM AccountsImage WHERE UserID = paraUserID;
-		IF paraUserType = 1 THEN
-				SET paraSuitID = 1;
-				SET paraPhotoFrameID = 1;
-				SET paraRoleID = 1;
-				SET paraGoldCoin = 0;
-				SET paraDiamond = 0;
+		SELECT role_id,suit_id,photo_frame_id  INTO para_role_id,para_suit_id,para_photo_frame_id FROM accounts_image WHERE user_id = para_user_id;
+		IF para_user_type = 1 THEN
+				SET para_suit_id = 1;
+				SET para_photo_frame_id = 1;
+				SET para_role_id = 1;
+				SET para_gold_coin = 0;
+				SET para_diamond = 0;
 		END IF;
 -- 	-- 事务处理
--- 	IF errNUm <> 0 THEN
--- 		SELECT errNUm AS errorCode, CONCAT( '抱歉地通知你，登陆操作失败，请联系客户服务中心了解详细情况，错误信息：', LEFT(errMsg,200))  AS errorMsg;
+-- 	IF err_num <> 0 THEN
+-- 		SELECT err_num AS error_code, CONCAT( '抱歉地通知你，登陆操作失败，请联系客户服务中心了解详细情况，错误信息：', LEFT(err_msg,200))  AS error_msg;
 -- 		ROLLBACK;
 -- 		LEAVE exitpro;
 -- 	ELSE
 		-- 输出变量
-		SELECT 0 AS errorCode, '' AS errorMsg;
-		SELECT paraUserID AS UserID, paraNickName AS NickName, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamonds, paraLevelNum AS MemberOrder, paraHeadImageUrl AS HeadImageUrl,paraFaceID AS FaceID, paraUserRight AS UserRight,paraRoleID AS RoleID,paraSuitID AS SuitID,paraPhotoFrameID AS PhotoFrameID ,paraGender AS Gender;
+		SELECT 0 AS error_code, '' AS error_msg;
+		SELECT para_user_id AS user_id, para_nick_name AS nick_name, para_gold_coin AS user_gold, para_diamond  AS user_diamonds, para_level_num AS member_order, para_head_image_url AS head_image_url,para_face_id AS face_id, para_user_right AS user_right,para_role_id AS role_id,para_suit_id AS suit_id,para_photo_frame_id AS photo_frame_id ,para_gender AS gender;
 		
 -- 		COMMIT;
 -- 	END IF;
@@ -1240,30 +1240,30 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_LoadRobotUser`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_LoadRobotUser`(IN `intGameID` int, IN `intBatchID` int, IN `intRobotCount` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_LoadRobotUser`(IN `int_game_id` int, IN `int_batch_id` int, IN `int_robot_count` int)
     COMMENT '加载机器人'
 BEGIN
 
   -- 用户ID记录临时表
-  Create TEMPORARY table TEMPROBOT(  `UserID` int(11) NOT NULL  )ENGINE = InnoDB;
+  Create TEMPORARY table TEMPROBOT(  `user_id` int(11) NOT NULL  )ENGINE = InnoDB;
   
   
   -- 解锁机器
-  UPDATE xjaccountsdb.RobotLockInfo SET RobotStatus=0,GameID=0,BatchID=0 
-  WHERE BatchID = intBatchID;
+  UPDATE robot_lock_info SET robot_status=0,game_id=0,batch_id=0 
+  WHERE batch_id = int_batch_id;
   
   -- 查询机器
-  INSERT INTO TEMPROBOT SELECT UserID FROM xjaccountsdb.RobotLockInfo 
-  WHERE RobotStatus=0 LIMIT intRobotCount;
+  INSERT INTO TEMPROBOT SELECT user_id FROM robot_lock_info 
+  WHERE robot_status=0 LIMIT int_robot_count;
   
   -- 更新状态
-  UPDATE xjaccountsdb.RobotLockInfo a INNER JOIN TEMPROBOT b ON a.UserID=b.UserID
-  SET a.RobotStatus=1,a.BatchID=intBatchID,a.GameID=intGameID,a.LockDateTime=NOW();
+  UPDATE robot_lock_info a INNER JOIN TEMPROBOT b ON a.user_id=b.user_id
+  SET a.robot_status=1,a.batch_id=int_batch_id,a.game_id=int_game_id,a.lock_date_time=NOW();
 	
   
   -- 输出数据
   SELECT 0 AS errorCode, '' AS errorMsg;
-  SELECT UserID FROM TEMPROBOT;
+  SELECT user_id FROM TEMPROBOT;
   
   -- 删除临时表
   DROP TEMPORARY table TEMPROBOT;
@@ -1277,11 +1277,11 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_LockUser`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_LockUser`(IN intUserID int, IN intKindID int, IN intGameID int, IN strEnterIP varchar(15))
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_LockUser`(IN int_user_id int, IN int_kind_id int, IN int_game_id int, IN str_enter_ip varchar(15))
     COMMENT '锁定用户'
 BEGIN
-	DELETE FROM AccountPlayingLock WHERE UserID=intUserID;
-	INSERT INTO xjaccountsdb.AccountPlayingLock(UserID, KindID, GameID, EnterIP, CollectDate) VALUES(intUserID, intKindID, intGameID, strEnterIP, NOW());
+	DELETE FROM account_playing_lock WHERE user_id=int_user_id;
+	INSERT INTO account_playing_lock(user_id, kind_id, game_id, enter_ip, collect_date) VALUES(int_user_id, int_kind_id, int_game_id, str_enter_ip, NOW());
 END
 ;;
 delimiter ;
@@ -1291,46 +1291,46 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_RecordDrawInfo`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_RecordDrawInfo`(IN `intKindID` int,IN `intGameID` int,IN `intTableID` int,IN `intUserCount` int,IN `intAndroidCount` int,IN `decWasteCount` DECIMAL(18,3),IN `decResveueCount` DECIMAL(18,3),IN `timeStartTime` datetime,IN `timeEndTime` datetime,IN `tintScoreType` tinyint)
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_RecordDrawInfo`(IN `int_kind_id` int,IN `int_game_id` int,IN `int_table_id` int,IN `int_user_count` int,IN `int_android_count` int,IN `dec_waste_count` DECIMAL(18,3),IN `dec_resveue_count` DECIMAL(18,3),IN `time_start_time` datetime,IN `time_end_time` datetime,IN `tint_score_type` tinyint)
     COMMENT '写入游戏总记录'
 BEGIN
 	
-	-- intKindID：游戏类型ID
-	-- intGameID：游戏ID
-	-- intTableID：桌子ID
-	-- intUserCount：用户数量
-	-- intAndroidCount：机器人数量
-	-- decWasteCount：损耗数目
-	-- decResveueCount：税收数目
+	-- int_kind_id：游戏类型ID
+	-- int_game_id：游戏ID
+	-- int_table_id：桌子ID
+	-- int_user_count：用户数量
+	-- int_android_count：机器人数量
+	-- dec_waste_count：损耗数目
+	-- dec_resveue_count：税收数目
 	-- timeEnterTime：游戏开始时间
 	-- timeLeaveTime：游戏结束时间
-	-- tintScoreType：金币类型
+	-- tint_score_type：金币类型
 	
-	DECLARE intDrawID INT DEFAULT 0;	-- 局数ID
+	DECLARE int_draw_id INT DEFAULT 0;	-- 局数ID
 	
-	IF intUserCount <> intAndroidCount THEN	
+	IF int_user_count <> int_android_count THEN	
 		
-		IF tintScoreType = 1 THEN
+		IF tint_score_type = 1 THEN
 			-- 插入记录
-			INSERT RecordDiamondDrawInfo(KindID,GameID,TableID,UserCount,AndroidCount,Waste,Revenue,StartTime,EndTime)
-			VALUES (intKindID,intGameID,intTableID,intUserCount,intAndroidCount,decWasteCount,decResveueCount,timeStartTime,timeEndTime);
+			INSERT record_diamond_draw_info(kind_id,game_id,table_id,user_count,android_count,waste,revenue,start_time,end_time)
+			VALUES (int_kind_id,int_game_id,int_table_id,int_user_count,int_android_count,dec_waste_count,dec_resveue_count,time_start_time,time_end_time);
 		END IF;
 		
-		IF tintScoreType = 0 THEN
+		IF tint_score_type = 0 THEN
 			-- 插入记录
-			INSERT RecordCoinDrawInfo(KindID,GameID,TableID,UserCount,AndroidCount,Waste,Revenue,StartTime,EndTime)
-			VALUES (intKindID,intGameID,intTableID,intUserCount,intAndroidCount,decWasteCount,decResveueCount,timeStartTime,timeEndTime);
+			INSERT record_coin_draw_info(kind_id,game_id,table_id,user_count,android_count,waste,revenue,start_time,end_time)
+			VALUES (int_kind_id,int_game_id,int_table_id,int_user_count,int_android_count,dec_waste_count,dec_resveue_count,time_start_time,time_end_time);
 		END IF;	
 		
-		-- SELECT DrawID INTO intDrawID FROM RecordDrawInfo WHERE StartTime = timeStartTime AND GameID = intGameID AND TableID = intTableID;		
-		SELECT LAST_INSERT_ID() INTO intDrawID;		
+		-- SELECT draw_id INTO int_draw_id FROM RecordDrawInfo WHERE start_time = time_start_time AND game_id = int_game_id AND table_id = int_table_id;		
+		SELECT LAST_INSERT_ID() INTO int_draw_id;		
 	
 	END IF;
 	
 	-- 输出变量
-	SELECT 0 AS errorCode, '' AS errorMsg;
+	SELECT 0 AS error_code, '' AS error_msg;
 	
-	SELECT intDrawID AS DrawID;
+	SELECT int_draw_id AS draw_id;
 
 END
 ;;
@@ -1341,35 +1341,35 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_TaskForward`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_TaskForward`(IN `intUserID` int, IN `intKindID` int, IN `intWinCount` int, IN `intLostCount` int, IN `intDrawCount` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_TaskForward`(IN `int_user_id` int, IN `int_kind_id` int, IN `int_win_count` int, IN `int_lost_count` int, IN `int_draw_count` int)
     COMMENT '任务推进'
 BEGIN
 	
 	-- 建立临时表
-	DROP TABLE IF  EXISTS TempTaskInfo;
-	CREATE TEMPORARY TABLE TempTaskInfo(				
+	DROP TABLE IF  EXISTS temp_task_info;
+	CREATE TEMPORARY TABLE temp_task_info(				
 			-- 查询任务	
-			SELECT ID,TaskType,TaskObject,TimeLimit,TaskStatus,InputDate,(CASE 
-												WHEN TaskType=0x01 THEN Progress + intWinCount
-												WHEN TaskType=0x02 THEN Progress + intWinCount + intLostCount + intDrawCount
-												WHEN TaskType=0x04 THEN intWinCount
-												WHEN TaskType=0x08 THEN Progress + intWinCount
-												ELSE Progress END) AS NewProgress
+			SELECT id,task_type,task_object,time_limit,task_status,input_date,(CASE 
+												WHEN task_type=0x01 THEN progress + int_win_count
+												WHEN task_type=0x02 THEN progress + int_win_count + int_lost_count + int_draw_count
+												WHEN task_type=0x04 THEN int_win_count
+												WHEN task_type=0x08 THEN progress + int_win_count
+												ELSE progress END) AS new_progress
 												,(CASE 
-												WHEN TaskType=0x08 THEN intLostCount + intDrawCount
-												ELSE 0 END) AS OtherProgress
-			FROM AccountsTask WHERE UserID= intUserID AND KindID= intKindID AND TaskStatus=0 AND TimeStampDiff(DAY,InputDate,NOW())=0
+												WHEN task_type=0x08 THEN int_lost_count + int_draw_count
+												ELSE 0 END) AS other_progress
+			FROM accounts_task WHERE user_id= int_user_id AND kind_id= int_kind_id AND task_status=0 AND time_stamp_diff(DAY,input_date,NOW())=0
 			
 	 );	
 
 	-- 更新状态（完成任务、首胜未胜、超时）
-	UPDATE TempTaskInfo SET TaskStatus=(CASE										 
-										 WHEN TaskType=0x04 AND NewProgress=0 THEN 2										 
-										 WHEN TimeLimit<TimeStampDiff(SECOND,InputDate,NOW()) THEN 2
-										 WHEN NewProgress>=TaskObject THEN 1
+	UPDATE temp_task_info SET task_status=(CASE										 
+										 WHEN task_type=0x04 AND new_progress=0 THEN 2										 
+										 WHEN time_limit<time_stamp_diff(SECOND,input_date,NOW()) THEN 2
+										 WHEN new_progress>=task_object THEN 1
 										 ELSE 0 END);
 	-- 更新物理表
-	UPDATE AccountsTask AS a,TempTaskInfo AS b SET a.Progress=b.NewProgress,a.TaskStatus=b.TaskStatus  WHERE a.ID=b.ID;	
+	UPDATE accounts_task AS a,temp_task_info AS b SET a.progress=b.new_progress,a.task_status=b.task_status  WHERE a.id=b.id;	
 	
 END
 ;;
@@ -1380,201 +1380,202 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `GSP_WriteGameScore`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GSP_WriteGameScore`(IN `intUserID` int,IN `decUserScore` DECIMAL(18,3),IN `tintScoreType` tinyint,IN `decRevenue` DECIMAL(18,3),IN `intWinCount` int,IN `intLostCount` int,IN `intDrawCount` int,IN `intFleeCount` int,IN `intPlayTimeCount` int,IN `tintTaskForward` tinyint,IN `intKindID` int,IN `intGameID` int,IN `decWaterScore` DECIMAL(18,3),IN `strClientIP` varchar(15),IN timeEnterTime datetime,IN timeLeaveTime datetime,IN `intDrawID` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `GSP_WriteGameScore`(IN `int_user_id` int,IN `dec_user_score` DECIMAL(18,3),IN `tint_score_type` tinyint,IN `dec_revenue` DECIMAL(18,3),IN `int_win_count` int,IN `int_lost_count` int,IN `int_draw_count` int,IN `int_flee_count` int,IN `int_play_time_count` int,IN `tint_task_forward` tinyint,IN `int_kind_id` int,IN `int_game_id` int,IN `dec_water_score` DECIMAL(18,3),IN `str_client_ip` varchar(15),IN time_enter_time datetime,IN time_leave_time datetime,IN `int_draw_id` int)
     COMMENT '游戏记录写分'
 exitpro:BEGIN
 
 	-- 参数：
-	-- intUserID 用户ID
-	-- decUserScore：用户分数
-	-- tintScoreType：金币类型
-	-- decRevenue：游戏税收
-	-- intWinCount：胜利盘数
-	-- intLostCount：失败盘数
-	-- intDrawCount：和局盘数
-	-- intFleeCount：逃跑数目
-	-- intPlayTimeCount：游戏时间(秒)
-	-- tintTaskForward：任务跟进：1 推进任务
-	-- intKindID：游戏类型 ID
-	-- intGameID：游戏ID
-	-- decWaterScore：游戏流水（打码）
-	-- strClientIP：客户端IP
-	-- timeEnterTime：游戏开始时间
-	-- timeLeaveTime：游戏结束时间				 
-	-- intDrawID:局数记录ID
+	-- int_user_id 用户id
+	-- dec_user_score：用户分数
+	-- tint_score_type：金币类型
+	-- dec_revenue：游戏税收
+	-- int_win_count：胜利盘数
+	-- int_lost_count：失败盘数
+	-- int_draw_count：和局盘数
+	-- int_flee_count：逃跑数目
+	-- int_play_time_count：游戏时间(秒)
+	-- tint_task_forward：任务跟进：1 推进任务
+	-- int_kind_id：游戏类型 id
+	-- int_game_id：游戏id
+	-- dec_water_score：游戏流水（打码）
+	-- str_client_ip：客户端IP
+	-- time_enter_time：游戏开始时间
+	-- time_leave_time：游戏结束时间				 
+	-- int_draw_id:局数记录id
 	
 
-	DECLARE errNUm INT DEFAULT 0;	-- 事务成功失败标识
-	DECLARE errMsg VARCHAR(1000);	-- 事务错误信息
+	DECLARE err_num INT DEFAULT 0;	-- 事务成功失败标识
+	DECLARE err_msg VARCHAR(1000);	-- 事务错误信息
 	
-	DECLARE paraCode INT DEFAULT 0;	-- 执行结果标识
-	DECLARE paraMsg VARCHAR(1000) DEFAULT '写入成功';	-- 提示信息	
+	DECLARE para_code INT DEFAULT 0;	-- 执行结果标识
+	DECLARE para_msg VARCHAR(1000) DEFAULT '写入成功';	-- 提示信息	
 	
 	-- 用户信息
-	DECLARE paraUserID INT;
-	DECLARE paraPreScore DECIMAL(18,3);	-- 游戏前金额（钻石/金币）
-	DECLARE PreGoldCoin DECIMAL(18,3);	-- 游戏前金币
-	DECLARE PreDiamond DECIMAL(18,3);		-- 游戏前钻石
-	DECLARE PreTotalDiamondStream DECIMAL(18,3);		-- 游戏前总钻石流水
-	DECLARE CurTotalDiamondStream DECIMAL(18,3);		-- 当前总钻石流水
-	DECLARE paraUserType INT;
-	DECLARE paraOldLevelNum	INT;	-- 用户等级
+	DECLARE parauser_id INT;
+	DECLARE para_pre_score DECIMAL(18,3);	-- 游戏前金额（钻石/金币）
+	DECLARE pre_gold_coin DECIMAL(18,3);	-- 游戏前金币
+	DECLARE pre_diamond DECIMAL(18,3);		-- 游戏前钻石
+	DECLARE pre_total_diamond_stream DECIMAL(18,3);		-- 游戏前总钻石流水
+	DECLARE cur_total_diamond_stream DECIMAL(18,3);		-- 当前总钻石流水
+	DECLARE para_user_type INT;
+	DECLARE para_old_level_num	INT;	-- 用户等级
 	
 	
 	-- 打码
-	DECLARE crtID			INT	;
-	DECLARE paraCodeAmounts	DECIMAL(18,3);	-- 需要完成打码金额
-	DECLARE paraDoneAmounts	DECIMAL(18,3);	-- 已完成打码金额
+	DECLARE crt_id			INT	;
+	DECLARE para_code_amounts	DECIMAL(18,3);	-- 需要完成打码金额
+	DECLARE para_done_amounts	DECIMAL(18,3);	-- 已完成打码金额
 	
 	-- 其他参数
-	DECLARE paraDateID INT;
-	DECLARE paraLevelNum INT;
-	DECLARE paraPayBackScale DECIMAL(5,2);		-- 系统抽税比例
-	DECLARE paraGameName VARCHAR(50);
-	DECLARE paraKindName VARCHAR(50);
+	DECLARE para_date_id INT;
+	DECLARE para_level_num INT;
+	DECLARE para_pay_back_scale DECIMAL(5,2);		-- 系统抽税比例
+	DECLARE para_game_name VARCHAR(50);
+	DECLARE para_kind_name VARCHAR(50);
 
 	-- 执行sql异常
 	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION 
 	BEGIN		
 		GET DIAGNOSTICS CONDITION 1 
-			errNUm = RETURNED_SQLSTATE,errMsg= MESSAGE_TEXT;
+			err_num = RETURNED_SQLSTATE,err_msg= MESSAGE_TEXT;
 	END;
 		
 	-- 开始事务
 	START TRANSACTION;			
 	
 		-- 用户信息			
-		SELECT UserID, UserType,LevelNum INTO paraUserID,paraUserType,paraOldLevelNum FROM xjaccountsdb.AccountsInfo WHERE UserID=intUserID;
+		SELECT user_id, user_type,level_num INTO parauser_id,para_user_type,para_old_level_num FROM accounts_info WHERE user_id=int_user_id;
 		-- 用户不存在
-		IF paraUserID IS NULL THEN
-			SELECT 1 AS errorCode, '用户信息不存在'  AS errorMsg;
+		IF parauser_id IS NULL THEN
+			SELECT 1 AS error_code, '用户信息不存在'  AS error_msg;
 			ROLLBACK;
 			LEAVE exitpro;
 		END IF;
 		
 		-- 机器人不写数据
-		IF paraUserType = 1 THEN
-			SELECT 2 AS errorCode, '用户是机器人'  AS errorMsg;
+		IF para_user_type = 1 THEN
+			SELECT 2 AS error_code, '用户是机器人'  AS error_msg;
 			ROLLBACK;
 			LEAVE exitpro;
 		END IF;
 		
-		SELECT  ABS(decWaterScore) INTO decWaterScore;
+		SELECT  ABS(dec_water_score) INTO dec_water_score;
 		
 		-- 财富信息----
-		SELECT GoldCoin,Diamond,TotalDiamondStream INTO PreGoldCoin,PreDiamond,PreTotalDiamondStream  FROM GameScoreInfo WHERE UserID=intUserID;
-		IF PreGoldCoin IS NULL THEN
-			SET PreGoldCoin=0;
-			SET PreDiamond=0;
-			INSERT GameScoreInfo (UserID) VALUES (intUserID);
+		SELECT gold_coin,diamond,total_diamond_stream INTO pre_gold_coin,pre_diamond,pre_total_diamond_stream  FROM game_score_info WHERE user_id=int_user_id;
+		IF pre_gold_coin IS NULL THEN
+			SET pre_gold_coin=0;
+			SET pre_diamond=0;
+			INSERT game_score_info (user_id) VALUES (int_user_id);
 		END IF;	
 		
-		SET intPlayTimeCount = UNIX_TIMESTAMP(timeLeaveTime) - UNIX_TIMESTAMP(timeEnterTime);
+		SET int_play_time_count = UNIX_TIMESTAMP(time_leave_time) - UNIX_TIMESTAMP(time_enter_time);
 		-- 游戏时长不能超过24小时
-		IF intPlayTimeCount >= 86400 THEN
-			SELECT 2 AS errorCode, '数据异常'  AS errorMsg;
+		IF int_play_time_count >= 86400 THEN
+			SELECT 2 AS error_code, '数据异常'  AS error_msg;
 			ROLLBACK;
 			LEAVE exitpro;
 		END IF;
 		
 		-- 更新用户积分
-		IF tintScoreType =0 THEN
+		IF tint_score_type =0 THEN
 			-- 金币----
-			SET paraPreScore = PreGoldCoin;
-			UPDATE GameScoreInfo SET TotalCoinStream = TotalCoinStream + ABS(decUserScore), GoldCoin=GoldCoin+decUserScore, Revenue=Revenue+ decRevenue, WinCount=WinCount+ intWinCount, LostCount=LostCount+intLostCount, DrawCount=DrawCount+intDrawCount,
-			FleeCount=FleeCount+intFleeCount,PlayTimeCount=PlayTimeCount+intPlayTimeCount
-			WHERE UserID=intUserID;
+			SET para_pre_score = pre_gold_coin;
+			UPDATE game_score_info SET total_coin_stream = total_coin_stream + ABS(dec_user_score), gold_coin=gold_coin+dec_user_score, revenue=revenue+ dec_revenue, win_count=win_count+ int_win_count, lost_count=lost_count+int_lost_count, draw_count=draw_count+int_draw_count,
+			flee_count=flee_count+int_flee_count,play_time_count=play_time_count+int_play_time_count
+			WHERE user_id=int_user_id;
 			
 			-- 0分不记录
-			IF decUserScore <> 0 THEN
+			IF dec_user_score <> 0 THEN
 				-- 写入金额变更记录
-				INSERT INTO GameCoinChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-				VALUES (intUserID,3,NOW(),decUserScore,PreGoldCoin +decUserScore ,strClientIP,'游戏比分输赢值');
+				INSERT INTO game_coin_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+				VALUES (int_user_id,3,NOW(),dec_user_score,pre_gold_coin +dec_user_score ,str_client_ip,'游戏比分输赢值');
 			END IF;
 			
 		ELSE
 			-- 钻石：更新钻石额度，更新打码记录，更新用户等级 -------			
-			SET paraPreScore = PreDiamond;
+			SET para_pre_score = pre_diamond;
 			-- 当前钻石总流水额
-			SET CurTotalDiamondStream = PreTotalDiamondStream +  ABS(decUserScore);
+			SET cur_total_diamond_stream = pre_total_diamond_stream +  ABS(dec_user_score);
 			
-			UPDATE GameScoreInfo SET TotalDiamondStream = CurTotalDiamondStream, Diamond=Diamond+decUserScore, Revenue=Revenue+ decRevenue, WinCount=WinCount+ intWinCount, LostCount=LostCount+intLostCount, DrawCount=DrawCount+intDrawCount,	FleeCount=FleeCount+intFleeCount,PlayTimeCount=PlayTimeCount+intPlayTimeCount
-			WHERE UserID=intUserID;
+			UPDATE game_score_info SET total_diamond_stream = cur_total_diamond_stream, diamond=diamond+dec_user_score, revenue=revenue+ dec_revenue, win_count=win_count+ int_win_count, lost_count=lost_count+int_lost_count, draw_count=draw_count+int_draw_count,	flee_count=flee_count+int_flee_count,play_time_count=play_time_count+int_play_time_count
+			WHERE user_id=int_user_id;
 			
 			-- 0分不写更新记录
-			IF decUserScore <> 0 THEN
+			IF dec_user_score <> 0 THEN
 				-- 写入金额变更记录
-				INSERT INTO GameDiamondChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-				VALUES (intUserID,3,NOW(),decUserScore,PreDiamond +decUserScore ,strClientIP,'游戏比分输赢值');
+				INSERT INTO game_diamond_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+				VALUES (int_user_id,3,NOW(),dec_user_score,pre_diamond +dec_user_score ,str_client_ip,'游戏比分输赢值');
 							
 				-- 更新流水打码----
-				SELECT ID, CodeAmounts, DoneAmounts INTO crtID,paraCodeAmounts,paraDoneAmounts FROM RecordCodeTran WHERE UserID = intUserID AND IsComplete=0;
-				IF crtID IS NOT NULL THEN
+				SELECT id, code_amounts, done_amounts INTO crt_id,para_code_amounts,para_done_amounts FROM record_code_tran WHERE user_id = int_user_id AND is_complete=0;
+				IF crt_id IS NOT NULL THEN
 					-- 完成打码
-					IF paraCodeAmounts - paraDoneAmounts - decWaterScore <= 0 THEN
-						UPDATE RecordCodeTran SET DoneAmounts = paraCodeAmounts, IsComplete =1 WHERE ID =crtID;
+					IF para_code_amounts - para_done_amounts - dec_water_score <= 0 THEN
+						UPDATE record_code_tran SET done_amounts = para_code_amounts, is_complete =1 WHERE id =crt_id;
 					ELSE
-						UPDATE RecordCodeTran SET DoneAmounts = DoneAmounts + decWaterScore WHERE ID =crtID;
+						UPDATE record_code_tran SET done_amounts = done_amounts + dec_water_score WHERE id =crt_id;
 					END IF;
 				END IF;				
 				
 				-- 更新用户等级----
 				-- 获取用户钻石总流水达到的分层					
-				SELECT LevelNum INTO paraLevelNum FROM xjaccountsdb.AccountsLevel WHERE MinimumFlow <= CurTotalDiamondStream  AND HighestFlow > CurTotalDiamondStream AND LevelNum > paraOldLevelNum ORDER BY LevelNum DESC LIMIT 0,1;
-				IF paraLevelNum IS NULL THEN
-					SELECT LevelNum INTO paraLevelNum FROM xjaccountsdb.AccountsLevel WHERE IsDefault =0;
+				SELECT level_num INTO para_level_num FROM accounts_level WHERE minimum_flow <= cur_total_diamond_stream  AND highest_flow > cur_total_diamond_stream AND level_num > para_old_level_num ORDER BY level_num DESC LIMIT 0,1;
+				IF para_level_num IS NULL THEN
+					SELECT level_num INTO para_level_num FROM accounts_level WHERE is_default =0;
 				END IF;
-				UPDATE xjaccountsdb.AccountsInfo SET LevelNum = paraLevelNum WHERE UserID=intUserID;
-				IF paraLevelNum > paraOldLevelNum THEN
-					SET paraCode=9999;
-					SET paraMsg = CONCAT('恭喜您，游戏等级升级为VIP', paraLevelNum);
+				UPDATE accounts_info SET level_num = para_level_num WHERE user_id=int_user_id;
+				IF para_level_num > para_old_level_num THEN
+					SET para_code=9999;
+					SET para_msg = CONCAT('恭喜您，游戏等级升级为VIP', para_level_num);
 				END IF;
 				
 			END IF;
 			
 		END IF;		
 	
-		SELECT RevenueRatio,GameName,KindName INTO paraPayBackScale,paraGameName,paraKindName FROM xjplatformdb.GameRoomConfig WHERE GameID=intGameID;
-		IF paraPayBackScale IS NULL THEN
-			SET paraPayBackScale=0;
+		SELECT revenue_ratio,game_name,kind_name INTO para_pay_back_scale,para_game_name,para_kind_name FROM game_room_config WHERE game_id=int_game_id;
+		IF para_pay_back_scale IS NULL THEN
+			SET para_pay_back_scale=0;
 		END IF;		
 		
 		-- 当日日期值
-		SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED); 
+		SET para_date_id = CAST(CAST(NOW() AS date) AS UNSIGNED); 
 		
 		-- 用户游戏输赢数据日统计-------------------------------------------------------
 		
 		-- 更新用户统计数据
-		UPDATE StreamScoreInfo SET TotalScore = TotalScore + decUserScore, WaterScore= WaterScore + decWaterScore, TotalRevenue=TotalRevenue+decRevenue,WinCount=WinCount+intWinCount, 
-						LostCount=LostCount+intLostCount, PlayTimeCount= PlayTimeCount+intPlayTimeCount, OnlineTimeCount = OnlineTimeCount + intPlayTimeCount, LastCollectDate=NOW()
-		WHERE DateID=paraDateID AND UserID=intUserID AND KindID = intKindID AND GameID = intGameID AND DataType = tintScoreType;
+		UPDATE stream_score_info SET total_score = total_score + dec_user_score, water_score= water_score + dec_water_score, total_revenue=total_revenue+dec_revenue,win_count=win_count+int_win_count, 
+						lost_count=lost_count+int_lost_count, play_time_count= play_time_count+int_play_time_count, online_time_count = online_time_count + int_play_time_count, last_collect_date=NOW()
+		WHERE date_id=para_date_id AND user_id=int_user_id AND kind_id = int_kind_id AND game_id = int_game_id AND data_type = tint_score_type;
 		-- 如果不存在数据
 		IF ROW_COUNT()=0 THEN
-			INSERT INTO StreamScoreInfo(DateID, UserID,KindID,KindName,GameID,GameName,TotalScore, TotalRevenue,DataType,  WinCount, LostCount,PlayTimeCount, OnlineTimeCount, FirstCollectDate, LastCollectDate,WaterScore,GameTotalCount)
-			VALUES(paraDateID, intUserID, intKindID,paraKindName,intGameID,paraGameName,decUserScore ,decRevenue,tintScoreType,intWinCount, intLostCount, intPlayTimeCount, intPlayTimeCount, NOW(), NOW(),decWaterScore,0);			
+			INSERT INTO stream_score_info(date_id, user_id,kind_id,kind_name,game_id,game_name,total_score, total_revenue,data_type,  win_count, lost_count,play_time_count, online_time_count, first_collect_date, last_collect_date,water_score,game_total_count)
+
+			VALUES(para_date_id, int_user_id, int_kind_id,para_kind_name,int_game_id,para_game_name,dec_user_score ,dec_revenue,tint_score_type,int_win_count, int_lost_count, int_play_time_count, int_play_time_count, NOW(), NOW(),dec_water_score,0);			
 		END IF;	
 		
 		-- 更新游戏房间总局数
-		UPDATE StreamScoreInfo SET GameTotalCount = GameTotalCount + 1 WHERE DateID=paraDateID AND KindID = intKindID AND GameID = intGameID AND DataType = tintScoreType;
+		UPDATE stream_score_info SET game_total_count = game_total_count + 1 WHERE date_id=para_date_id AND kind_id = int_kind_id AND game_id = int_game_id AND data_type = tint_score_type;
 
 		-- 任务推进
-		IF tintTaskForward=1 THEN
-			CALL xjaccountsdb.GSP_TaskForward(intUserID,intKindID,intWinCount,intLostCount,intDrawCount);
+		IF tint_task_forward=1 THEN
+			CALL  GSP_task_forward(int_user_id,int_kind_id,int_win_count,int_lost_count,int_draw_count);
 		END IF;
 		
 		
 		-- 插入游戏记录
-		INSERT GameRecordInfo(UserID,UserScore,UserRevenue,PreScore,ScoreType,KindID,KindName,GameID,GameName,UserType,RevenueRatio,WaterScore,DateID,RecordDate,EnterTime,LeaveTime,DrawID)
-		VALUES(intUserID,decUserScore,decRevenue,paraPreScore,tintScoreType,intKindID,paraKindName,intGameID,paraGameName,paraUserType,paraPayBackScale,decWaterScore,paraDateID,NOW(),timeEnterTime,timeLeaveTime,intDrawID);
+		INSERT game_record_info(user_id,user_score,user_revenue,pre_score,score_type,kind_id,kind_name,game_id,game_name,user_type,revenue_ratio,water_score,date_id,record_date,enter_time,leave_time,draw_id)
+		VALUES(int_user_id,dec_user_score,dec_revenue,para_pre_score,tint_score_type,int_kind_id,para_kind_name,int_game_id,para_game_name,para_user_type,para_pay_back_scale,dec_water_score,para_date_id,NOW(),time_enter_time,time_leave_time,int_draw_id);
 	-- 事务处理
-	IF errNUm <> 0 THEN
-		SELECT errNUm AS errorCode, CONCAT( '游戏写分失败，错误信息：', LEFT(errMsg,200))  AS errorMsg;
+	IF err_num <> 0 THEN
+		SELECT err_num AS error_code, CONCAT( '游戏写分失败，错误信息：', LEFT(err_msg,200))  AS error_msg;
 		ROLLBACK;
 		LEAVE exitpro;
 	END IF;
 		
 	-- 输出变量
-	SELECT paraCode AS errorCode, paraMsg AS errorMsg;		
+	SELECT para_code AS error_code, para_msg AS error_msg;		
 	COMMIT;
 
 END
@@ -1582,150 +1583,150 @@ END
 delimiter ;
 
 -- ----------------------------
--- Procedure structure for LSP_MobileLogin
+-- Procedure structure for LSP_mobileLogin
 -- ----------------------------
-DROP PROCEDURE IF EXISTS `LSP_MobileLogin`;
+DROP PROCEDURE IF EXISTS `LSP_mobileLogin`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `LSP_MobileLogin`(IN strPhoneNumber varchar(32), IN strPassword varchar(32), IN strMachineID varchar(64), IN numDeviceType int, IN strClientIP varchar(15), IN `strServerIP` varchar(15))
+CREATE DEFINER=`root`@`%` PROCEDURE `LSP_mobileLogin`(IN str_phone_number varchar(32), IN str_pssword varchar(32), IN str_machine_id varchar(64), IN num_device_type int, IN str_client_ip varchar(15), IN `str_server_ip` varchar(15))
     COMMENT '手机号登陆'
 exitpro:BEGIN	
 	
 	-- 手机号码登陆-------
 	-- 基本信息
-	DECLARE paraUserID INT;	
-	DECLARE paraFaceID SMALLINT; -- 头像id
-	DECLARE paraAccounts VARCHAR(32); -- 用户账号
-	DECLARE paraPassword VARCHAR(32);
-	DECLARE paraNickName VARCHAR(32); 	-- 昵称
-	DECLARE paraUnderWrite VARCHAR(100);  -- 签名
-	DECLARE paraPlayTimeCount INT;
-	DECLARE paraMobile VARCHAR(11);	
-	DECLARE paraLevelNum INT;
-	DECLARE paraCodekey VARCHAR(10);
+	DECLARE para_user_id INT;	
+	DECLARE para_face_id SMALLINT; -- 头像id
+	DECLARE para_accounts VARCHAR(32); -- 用户账号
+	DECLARE para_pssword VARCHAR(32);
+	DECLARE para_nick_name VARCHAR(32); 	-- 昵称
+	DECLARE para_under_write VARCHAR(100);  -- 签名
+	DECLARE para_play_time_count INT;
+	DECLARE para_mobile VARCHAR(11);	
+	DECLARE para_level_num INT;
+	DECLARE para_code_key VARCHAR(10);
 	
 	-- 用户额外信息
-	DECLARE paraRoleID INT;		-- 角色标识
-	DECLARE paraSuitID INT;		-- 套装标识
-	DECLARE paraPhotoFrameID INT; -- 头相框标识
+	DECLARE para_role_id INT;		-- 角色标识
+	DECLARE para_suit_id INT;		-- 套装标识
+	DECLARE para_photo_frame_id INT; -- 头相框标识
 	
 	-- 财富变量
-	DECLARE paraGoldCoin DECIMAL(18,3);	-- 金币
-	DECLARE paraDiamond INT;	-- 钻石
+	DECLARE para_gold_coin DECIMAL(18,3);	-- 金币
+	DECLARE para_diamond INT;	-- 钻石
 	
 	-- 辅助变量
-	DECLARE paraEnjoinLogon INT;
-	DECLARE paraGender TINYINT;	-- 性别：0女，1男
+	DECLARE para_enjoin_logon INT;
+	DECLARE para_gender TINYINT;	-- 性别：0女，1男
 	
 	-- 查询用户
-	DECLARE paraNullity TINYINT;
-	DECLARE paraStunDown TINYINT;
-	DECLARE paraLogonPass CHAR(32);
-	DECLARE paraInsurePass CHAR(32);
-	DECLARe paraLastLogonIP  CHAR(15);
-	DECLARE paraLastLogonMachine  CHAR(64);
-	DECLARE paraMoorMachine  TINYINT;
-	DECLARE paraLockServerID INT;
-	DECLARE paraBinderCardNo VARCHAR(100);	
+	DECLARE para_nullity TINYINT;
+	DECLARE para_stun_down TINYINT;
+	DECLARE para_logon_pass CHAR(32);
+	DECLARE para_insure_pass CHAR(32);
+	DECLARe para_last_logon_ip  CHAR(15);
+	DECLARE para_last_logon_machine  CHAR(64);
+	DECLARE para_moor_machine  TINYINT;
+	DECLARE para_lock_server_id INT;
+	DECLARE para_binder_card_no VARCHAR(100);	
 	
-	DECLARE paraDateID INT;
+	DECLARE para_date_id INT;
 	
-	DECLARE paraKindID INT;	
-	DECLARE paraRoomCard INT;
+	DECLARE para_kind_id INT;	
+	DECLARE para_room_card INT;
 		
 	-- 系统暂停
-	SET paraEnjoinLogon =(SELECT StatusValue FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon');
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 1 AS errorCode, (SELECT StatusString FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon')  AS errorMsg;	
+	SET para_enjoin_logon =(SELECT status_value FROM system_status_info WHERE status_name='enjoin_logon');
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 1 AS error_code, (SELECT status_string FROM system_status_info WHERE status_name='enjoin_logon')  AS error_msg;	
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验地址
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineAddress WHERE AddrString=strClientIP AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_address WHERE addr_string=str_client_ip AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验机器
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineMachine WHERE MachineSerial=strMachineID AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_machine WHERE machine_serial=str_machine_id AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 查询用户
-	SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,LastLogonMachine,Codekey
-	INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraLastLogonMachine,paraCodekey
-	FROM AccountsInfo WHERE RegisterMobile=strPhoneNumber;
+	SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,level_num,last_logon_machine,code_key
+	INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_last_logon_machine,para_code_key
+	FROM accounts_info WHERE register_mobile=str_phone_number;
 	 
 	-- 查询用户
-	IF paraUserID IS NULL THEN
-		SELECT 3 AS errorCode, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！' AS errorMsg;	
+	IF para_user_id IS NULL THEN
+		SELECT 3 AS error_code, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！' AS error_msg;	
 		LEAVE exitpro;
 	END IF;
 
 	-- 帐号禁止
-	IF paraNullity<>0 THEN
-		SELECT 3 AS errorCode, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！'  AS errorMsg;	
+	IF para_nullity<>0 THEN
+		SELECT 3 AS error_code, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！'  AS error_msg;	
 		LEAVE exitpro;
 	END	IF;
 	
 	-- 固定机器
-	IF paraMoorMachine=1 THEN
-		IF paraLastLogonMachine<>strMachineID THEN
-			SELECT 3 AS errorCode, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS errorMsg;
+	IF para_moor_machine=1 THEN
+		IF para_last_logon_machine<>str_machine_id THEN
+			SELECT 3 AS error_code, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS error_msg;
 			LEAVE exitpro;
 		END IF;
 	END IF;
 
 	-- 密码判断	
-	SET paraPassword = md5( CONCAT(strPassword, paraCodekey ));	
-	IF paraLogonPass<>paraPassword THEN
-		SELECT 3 AS errorCode, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！'  AS errorMsg;
+	SET para_pssword = md5( CONCAT(str_pssword, para_code_key ));	
+	IF para_logon_pass<>para_pssword THEN
+		SELECT 3 AS error_code, '您的帐号不存在或者密码输入有误，请查证后再次尝试登录！'  AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 查询金币
-	SELECT GoldCoin,Diamond INTO paraGoldCoin,paraDiamond FROM xjtreasuredb.GameScoreInfo WHERE UserID= paraUserID;
+	SELECT gold_coin,diamond INTO para_gold_coin,para_diamond FROM game_score_info WHERE user_id= para_user_id;
 	-- 数据调整
-	IF paraGoldCoin IS NULL THEN SET paraGoldCoin=0; END IF;
-	IF paraDiamond IS NULL THEN SET paraDiamond=0; END IF;
+	IF para_gold_coin IS NULL THEN SET para_gold_coin=0; END IF;
+	IF para_diamond IS NULL THEN SET para_diamond=0; END IF;
 	
 	-- 人物形象
-	SELECT RoleID,SuitID,PhotoFrameID  INTO paraRoleID,paraSuitID,paraPhotoFrameID FROM AccountsImage WHERE UserID = paraUserID;
+	SELECT role_id,suit_id,photo_frame_id  INTO para_role_id,para_suit_id,para_photo_frame_id FROM accounts_image WHERE user_id = para_user_id;
 	
 	-- 记录日志
-	SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED);
+	SET para_date_id = CAST(CAST(NOW() AS date) AS UNSIGNED);
 	
-	UPDATE SystemStreamInfo SET GameLogonSuccess=GameLogonSuccess+1 WHERE DateID=paraDateID;
+	UPDATE system_stream_info SET game_logon_success=game_logon_success+1 WHERE date_id=para_date_id;
 	IF ROW_COUNT()=0 THEN
-		INSERT SystemStreamInfo (DateID, GameLogonSuccess,CollectDate) VALUES (paraDateID, 1,NOW());
+		INSERT system_stream_info (date_id, game_logon_success,collect_date) VALUES (para_date_id, 1,NOW());
 	END IF;
 	
-	IF numDeviceType IS NULL THEN
-			SET numDeviceType =1;	-- ANDROID
+	IF num_device_type IS NULL THEN
+			SET num_device_type =1;	-- ANDROID
 	END IF;	
 	-- 写入登录日志
-	INSERT INTO xjrecorddb.RecordLogin (UserID, ClientIP, ServerIP, LoginDate, Terminal, LoginWay) VALUES(paraUserID, strClientIP, strServerIP, NOW(), numDeviceType, 1);
+	INSERT INTO record_login (user_id, client_ip, server_ip, login_date, terminal, login_way) VALUES(para_user_id, str_client_ip, str_server_ip, NOW(), num_device_type, 1);
 	
 	-- 更新信息
-	UPDATE AccountsInfo SET GameLogonTimes=GameLogonTimes+1, LastLogonDate=NOW(), LastLogonIP= strClientIP,LastLogonMachine=strMachineID	WHERE UserID=paraUserID;
+	UPDATE accounts_info SET game_logon_times=game_logon_times+1, last_logon_date=NOW(), last_logon_ip= str_client_ip,last_logon_machine=str_machine_id	WHERE user_id=para_user_id;
 	
--- 	IF paraLockServerID IS NOT NULL THEN SET paraLockServerID =0;END IF;	
--- 	IF paraKindID IS NOT NULL THEN SET paraKindID =0;END IF;	
+-- 	IF para_lock_server_id IS NOT NULL THEN SET para_lock_server_id =0;END IF;	
+-- 	IF para_kind_id IS NOT NULL THEN SET para_kind_id =0;END IF;	
 -- 
--- 	SELECT RoomCard INTO paraRoomCard FROM xjtreasuredb.userroomcard WHERE UserID=paraUserID;
--- 	IF paraRoomCard IS NULL THEN SET paraRoomCard=0;END IF;
+-- 	SELECT room_card INTO para_room_card FROM xjtreasuredb.userroom_card WHERE user_id=para_user_id;
+-- 	IF para_room_card IS NULL THEN SET para_room_card=0;END IF;
 -- 	
 
-	SELECT AccountOrCard INTO paraBinderCardNo FROM xjaccountsdb.ExchangeAccount WHERE UserID = paraUserID;
-	IF paraBinderCardNo IS NULL THEN
-			SET paraBinderCardNo ='';
+	SELECT account_or_card INTO para_binder_card_no FROM exchange_account WHERE user_id = para_user_id;
+	IF para_binder_card_no IS NULL THEN
+			SET para_binder_card_no ='';
 	END IF;
 	
 	-- 输出变量
-	SELECT 0 AS errorCode, '' AS errorMsg;
-	SELECT paraUserID AS UserID, paraNickName AS NikeName, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamonds, paraMobile AS PhoneNumber,paraBinderCardNo AS BinderCardNo , paraLevelNum AS MemberOrder,paraFaceID AS FaceID,paraRoleID AS RoleID,paraSuitID AS SuitID,paraPhotoFrameID AS PhotoFrameID,paraGender AS Gender;
+	SELECT 0 AS error_code, '' AS error_msg;
+	SELECT para_user_id AS user_id, para_nick_name AS nike_name, para_gold_coin AS UserGold, para_diamond  AS user_diamonds, para_mobile AS phone_number,para_binder_card_no AS binder_card_no , para_level_num AS member_order,para_face_id AS face_id,para_role_id AS role_id,para_suit_id AS suit_id,para_photo_frame_id AS photo_frame_id,para_gender AS gender;
 
 		
 END
@@ -1737,200 +1738,200 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `LSP_VisitorLogin`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `LSP_VisitorLogin`(IN `strMachineID` varchar(64), IN `numDeviceType` int, IN `strClientIP` varchar(15), IN `strServerIP` varchar(15))
+CREATE DEFINER=`root`@`%` PROCEDURE `LSP_VisitorLogin`(IN `str_machine_id` varchar(64), IN `num_device_type` int, IN `str_client_ip` varchar(15), IN `str_server_ip` varchar(15))
     COMMENT '游客登陆'
 exitpro:BEGIN
 			
 	-- 基本信息
-	DECLARE paraUserID INT;	
-	DECLARE paraFaceID SMALLINT; -- 头像id
-	DECLARE paraAccounts VARCHAR(32);
-	DECLARE paraNickName VARCHAR(32); 	-- 昵称
-	DECLARE paraUnderWrite VARCHAR(100);  -- 签名
-	DECLARE paraPlayTimeCount INT;
-	DECLARE paraPlatformID TINYINT;
-	DECLARE paraLevelNum INT;		
-	DECLARE paraMobile VARCHAR(11);	
-	DECLARE paraBinderCardNum VARCHAR(100);	
+	DECLARE para_user_id INT;	
+	DECLARE para_face_id SMALLINT; -- 头像id
+	DECLARE para_accounts VARCHAR(32);
+	DECLARE para_nick_name VARCHAR(32); 	-- 昵称
+	DECLARE para_under_write VARCHAR(100);  -- 签名
+	DECLARE para_play_time_count INT;
+	DECLARE para_platform_id TINYINT;
+	DECLARE para_level_num INT;		
+	DECLARE para_mobile VARCHAR(11);	
+	DECLARE para_binder_card_num VARCHAR(100);	
 	
 	-- 用户额外信息
-	DECLARE paraRoleID INT;		-- 角色标识
-	DECLARE paraSuitID INT;		-- 套装标识
-	DECLARE paraPhotoFrameID INT; -- 头相框标识
+	DECLARE para_role_id INT;		-- 角色标识
+	DECLARE para_suit_id INT;		-- 套装标识
+	DECLARE para_photo_frame_id INT; -- 头相框标识
 	
 	-- 财富变量
-	DECLARE paraGoldCoin DECIMAL(18,3);	-- 金币
-	DECLARE paraDiamond INT;	-- 钻石
+	DECLARE para_gold_coin DECIMAL(18,3);	-- 金币
+	DECLARE para_diamond INT;	-- 钻石
 	
 	-- 辅助变量
-	DECLARE paraEnjoinLogon INT;
-	DECLARE paraGender TINYINT;	-- 性别：0女，1男
+	DECLARE para_enjoin_logon INT;
+	DECLARE para_gender TINYINT;	-- 性别：0女，1男
 	
 	-- 查询用户
-	DECLARE paraNullity TINYINT;
-	DECLARE paraLogonPass CHAR(32);
-	DECLARE paraInsurePass CHAR(32);
-	DECLARe paraLastLogonIP  CHAR(15);
-	DECLARE paraLastLogonMachine  CHAR(64);
-	DECLARE paraMoorMachine  TINYINT;
-	DECLARE paraLockServerID INT;
+	DECLARE para_nullity TINYINT;
+	DECLARE para_logon_pass CHAR(32);
+	DECLARE para_insure_pass CHAR(32);
+	DECLARe para_last_logon_ip  CHAR(15);
+	DECLARE para_last_logon_machine  CHAR(64);
+	DECLARE para_moor_machine  TINYINT;
+	DECLARE para_lock_server_id INT;
 		
-	DECLARE paraDateID INT;
+	DECLARE para_sate_id INT;
 	
 	-- 临时账号
-	DECLARE strTemp VARCHAR(32);	
+	DECLARE str_temp VARCHAR(32);	
 	
 	-- 平台
-	DECLARE paraGrantIPCount INT;
-	DECLARE paraGrantCoin DECIMAL(18,3);
+	DECLARE para_grant_ip_count INT;
+	DECLARE para_grant_coin DECIMAL(18,3);
 	-- 赠送次数
-	DECLARE paraGrantCount INT;
+	DECLARE para_grant_count INT;
 
-	DECLARE paraKindID INT;	
-	DECLARE paraRoomCard INT;
+	DECLARE para_kind_id INT;	
+	DECLARE para_room_card INT;
 	
 	
-	DECLARE paraPath varchar(1000);
-	DECLARE paraAgentLevel INT;	
-	DECLARE paraAgentID INT;
+	DECLARE para_path varchar(1000);
+	DECLARE para_agent_level INT;	
+	DECLARE para_agent_id INT;
 	
 	-- DECLARE CurrCoin DECIMAL(18,3);
 	
 	-- 登录暂停
-	SET paraEnjoinLogon =(SELECT StatusValue FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon');
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 1 AS errorCode,  (SELECT StatusString FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon') AS errorMsg;
+	SET para_enjoin_logon =(SELECT status_value FROM system_status_info WHERE status_name='enjoin_logon');
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 1 AS error_code,  (SELECT status_string FROM system_status_info WHERE status_name='enjoin_logon') AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验地址
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineAddress WHERE AddrString=strClientIP AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_address WHERE addr_string=str_client_ip AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验机器
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineMachine WHERE MachineSerial=strMachineID AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_machine WHERE machine_serial=str_machine_id AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 
 	
 	-- 查询用户
-	SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,LastLogonMachine
-	INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraLastLogonMachine
-	FROM AccountsInfo WHERE  RegisterMachine=strMachineID AND PlatformID =2;	
+	SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,level_num,last_logon_machine
+	INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_last_logon_machine
+	FROM accounts_info WHERE  register_machine=str_machine_id AND platform_id =2;	
 	
-	SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED);
+	SET para_sate_id = CAST(CAST(NOW() AS date) AS UNSIGNED);
 	
-	SET paraGoldCoin=2000;
-	SET paraDiamond=0;
+	SET para_gold_coin=2000;
+	SET para_diamond=0;
 	
-	IF paraUserID IS NULL THEN
+	IF para_user_id IS NULL THEN
 		
 		-- 昵称
-		SET strTemp = CONCAT_WS('_','游客',LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),10));
+		SET str_temp = CONCAT_WS('_','游客',LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),10));
 				
 		-- 账号生成
-		SET paraAccounts ='';
-		WHILE paraAccounts = '' DO	
-			SET paraAccounts= LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),12);
+		SET para_accounts ='';
+		WHILE para_accounts = '' DO	
+			SET para_accounts= LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),12);
 			-- 查询昵称
-			IF EXISTS (SELECT UserID FROM AccountsInfo WHERE Accounts=paraAccounts) THEN
-				SET paraAccounts='';
+			IF EXISTS (SELECT user_id FROM accounts_info WHERE accounts=para_accounts) THEN
+				SET para_accounts='';
 			END IF;
 		END WHILE;	
 		
 		-- 获取用户分层
-		SELECT LevelNum  INTO paraLevelNum FROM AccountsLevel WHERE IsDefault =0;
-		IF paraLevelNum IS NULL THEN
-			SET paraLevelNum = 0;
+		SELECT level_num  INTO para_level_num FROM accounts_level WHERE is_default =0;
+		IF para_level_num IS NULL THEN
+			SET para_level_num = 0;
 		END IF;
 
 		-- 注册用户
-		INSERT AccountsInfo (Accounts,NickName,UserUin,LogonPass,InsurePass,RegisterIP,LastLogonIP,LastLogonDate,RegisterMobile,RegisterMachine,LevelNum,LastLogonMachine,PlatformID)
-		VALUES (paraAccounts,strTemp,'','25d55ad283aa400af464c76d713c07ad','',strClientIP,strClientIP,NOW(),'',strMachineID,paraLevelNum,strMachineID,2);
+		INSERT accounts_info (accounts,nick_name,UserUin,logon_pass,insure_pass,register_ip,last_logon_ip,last_logon_date,register_mobile,register_machine,level_num,last_logon_machine,platform_id)
+		VALUES (para_accounts,str_temp,'','25d55ad283aa400af464c76d713c07ad','',str_client_ip,str_client_ip,NOW(),'',str_machine_id,para_level_num,str_machine_id,2);
 		
 		-- 玩家账号
-		SELECT UserID INTO paraUserID FROM AccountsInfo WHERE Accounts=paraAccounts;		
-		-- SET strTemp= CONCAT('Vistor_' , CONVERT(paraUserID,CHAR(5)));
+		SELECT user_id INTO para_user_id FROM accounts_info WHERE accounts=para_accounts;		
+		-- SET str_temp= CONCAT('Vistor_' , CONVERT(para_user_id,CHAR(5)));
 		
 		-- 人物形象
-		INSERT AccountsImage(UserID)VALUES(paraUserID);
+		INSERT accounts_image(user_id)VALUES(para_user_id);
 		
-		INSERT xjtreasuredb.GameScoreInfo(UserID, GoldCoin, Diamond) VALUES (paraUserID, paraGoldCoin,paraDiamond);
+		INSERT game_score_info(user_id, gold_coin, diamond) VALUES (para_user_id, para_gold_coin,para_diamond);
 		
 		-- 代理信息
 -- 		IF cbAgentID<>0 THEN
 -- 			
 -- 			-- 查代理
--- 			SELECT AgentID, AgentLevel + 1,ParentPath INTO paraAgentID,paraAgentLevel,paraPath FROM AccountsAgent WHERE AgentID=cbAgentID;
+-- 			SELECT AgentID, agent_level + 1,parent_path INTO para_agent_id,para_agent_level,para_path FROM accounts_agent WHERE AgentID=cbAgentID;
 -- 
 -- 			-- 结果处理
--- 			IF paraAgentID IS NULL THEN
--- 				SELECT 3 AS errorCode,  '您所填写的推荐人不存在或者填写错误，请检查后再次注册！' AS errorMsg;
+-- 			IF para_agent_id IS NULL THEN
+-- 				SELECT 3 AS error_code,  '您所填写的推荐人不存在或者填写错误，请检查后再次注册！' AS error_msg;
 -- 				LEAVE exitpro;
 -- 			END IF;
 -- 
--- 			IF paraAgentLevel = 1 THEN
--- 				SET paraPath = CONVERT(cbAgentID,CHAR(5));
+-- 			IF para_agent_level = 1 THEN
+-- 				SET para_path = CONVERT(cbAgentID,CHAR(5));
 -- 			ELSE
--- 				SET paraPath = paraPath + ',' +CONVERT(cbAgentID,CHAR(5));
+-- 				SET para_path = para_path + ',' +CONVERT(cbAgentID,CHAR(5));
 -- 			END IF;
 -- 		ELSE
-			SET paraAgentID=0;
-			SET paraAgentLevel=0;
-			SET paraPath ='';
+			SET para_agent_id=0;
+			SET para_agent_level=0;
+			SET para_path ='';
 		-- END IF;
 		
-		INSERT AccountsAgent(UserID,ParentId,AgentLevel,ParentPath)VALUES(paraUserID,paraAgentID,paraAgentLevel,paraPath);
+		INSERT accounts_agent(user_id,parent_id,agent_level,parent_path)VALUES(para_user_id,para_agent_id,para_agent_level,para_path);
 				
 		-- 查询用户
-		SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,LastLogonMachine
-		INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraLastLogonMachine
-		FROM AccountsInfo WHERE UserID=paraUserID;
+		SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,level_num,last_logon_machine
+		INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_last_logon_machine
+		FROM accounts_info WHERE user_id=para_user_id;
 				
 		-- ---------注册赠送 ---------------------
 		-- 读取变量
-		SELECT StatusValue INTO paraGrantIPCount FROM xjplatformdb.SystemStatusInfo WHERE StatusName='GrantIPCount';
-		SELECT StatusValue INTO paraGrantCoin FROM xjplatformdb.SystemStatusInfo WHERE StatusName='GrantScoreCount';
+		SELECT status_value INTO para_grant_ip_count FROM system_status_info WHERE status_name='grant_ip_count';
+		SELECT status_value INTO para_grant_coin FROM system_status_info WHERE status_name='GrantScoreCount';
 		
 		-- 赠送限制
-		IF paraGrantCoin IS NOT NULL AND paraGrantCoin>0 AND paraGrantIPCount IS NOT NULL AND paraGrantIPCount>0 THEN
+		IF para_grant_coin IS NOT NULL AND para_grant_coin>0 AND para_grant_ip_count IS NOT NULL AND para_grant_ip_count>0 THEN
 			
-			SELECT GrantCount INTO paraGrantCount FROM SystemGrantCount WHERE DateID=paraDateID AND RegisterIP=strClientIP;
+			SELECT grant_count INTO para_grant_count FROM system_grant_count WHERE sate_id=para_sate_id AND register_ip=str_client_ip;
 		
 			-- 次数判断
-			IF paraGrantCount IS NOT NULL AND paraGrantCount>=paraGrantIPCount THEN
-				SET paraGrantCoin=0;
+			IF para_grant_count IS NOT NULL AND para_grant_count>=para_grant_ip_count THEN
+				SET para_grant_coin=0;
 			END IF;
 		END IF;
 		
 		-- 赠送金币
-		IF paraGrantCoin IS NOT NULL AND paraGrantCoin>0 THEN
+		IF para_grant_coin IS NOT NULL AND para_grant_coin>0 THEN
 			-- 更新记录
-			UPDATE SystemGrantCount SET GrantCoin=GrantCoin+paraGrantCoin, GrantCount=GrantCount+1 WHERE DateID=paraDateID AND RegisterIP=strClientIP;
+			UPDATE system_grant_count SET grant_coin=grant_coin+para_grant_coin, grant_count=grant_count+1 WHERE sate_id=para_sate_id AND register_ip=str_client_ip;
 			-- 插入记录
 			IF ROW_COUNT()=0 THEN
-				INSERT SystemGrantCount (DateID, RegisterIP, RegisterMachine, GrantCoin, GrantCount,CollectDate) VALUES (paraDateID, strClientIP, '', paraGrantCoin, 1,NOW());
+				INSERT system_grant_count (sate_id, register_ip, register_machine, grant_coin, grant_count,collect_date) VALUES (para_sate_id, str_client_ip, '', para_grant_coin, 1,NOW());
 			END IF;
 
 			-- 查询金币			
-			SELECT GoldCoin INTO paraGoldCoin FROM xjtreasuredb.GameScoreInfo  WHERE UserID=paraUserID;			
-			IF paraGoldCoin IS NULL THEN SET paraGoldCoin=0; END IF;
+			SELECT gold_coin INTO para_gold_coin FROM game_score_info  WHERE user_id=para_user_id;			
+			IF para_gold_coin IS NULL THEN SET para_gold_coin=0; END IF;
 			
 			-- 赠送金币
-			UPDATE xjtreasuredb.GameScoreInfo SET GoldCoin= GoldCoin + paraGrantCoin WHERE UserID=paraUserID;
+			UPDATE game_score_info SET gold_coin= gold_coin + para_grant_coin WHERE user_id=para_user_id;
 
 			-- 写入金额变更记录
-			INSERT INTO xjtreasuredb.GameScoreChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-			VALUES (paraUserID,4,NOW(),paraGrantCoin, paraGoldCoin + paraGrantCoin,strClientIP,'游客登录金币赠送');
+			INSERT INTO game_score_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+			VALUES (para_user_id,4,NOW(),para_grant_coin, para_gold_coin + para_grant_coin,str_client_ip,'游客登录金币赠送');
 			
 			-- 流水账
-			INSERT INTO xjtreasuredb.RecordPresentInfo(UserID,PreCoin,PresentCoin,TypeID,IPAddress,CollectDate,DateID)
-			VALUES (paraUserID,paraGoldCoin,paraGrantCoin,1,strClientIP,NOW(),paraDateID);
+			INSERT INTO record_present_info(user_id,pre_coin,present_coin,type_id,ip_address,collect_date,sate_id)
+			VALUES (para_user_id,para_gold_coin,para_grant_coin,1,str_client_ip,NOW(),para_sate_id);
 						
 		END IF;		
 		
@@ -1938,59 +1939,59 @@ exitpro:BEGIN
 	ELSE
 		
 		-- 帐号禁止
-		IF paraNullity<>0 THEN
-			SELECT 2 AS errorCode, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！' AS errorMsg;
+		IF para_nullity<>0 THEN
+			SELECT 2 AS error_code, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！' AS error_msg;
 			LEAVE exitpro;
 		END	 IF;
 		
 		-- 固定机器
-		IF paraMoorMachine=1 THEN
-			IF paraLastLogonMachine<>strMachineID THEN
-				SELECT 2 AS errorCode, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS errorMsg;
+		IF para_moor_machine=1 THEN
+			IF para_last_logon_machine<>str_machine_id THEN
+				SELECT 2 AS error_code, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS error_msg;
 				LEAVE exitpro;
 			END IF;
 		END IF;
 				
 		-- 查询金币
-		SELECT GoldCoin ,Diamond INTO paraGoldCoin, paraDiamond FROM xjtreasuredb.GameScoreInfo WHERE UserID=paraUserID;
+		SELECT gold_coin ,diamond INTO para_gold_coin, para_diamond FROM game_score_info WHERE user_id=para_user_id;
 		-- 数据调整
-		IF paraGoldCoin IS NULL THEN SET paraGoldCoin=0; END IF;
-		IF paraDiamond IS NULL THEN SET paraDiamond=0; END IF;
+		IF para_gold_coin IS NULL THEN SET para_gold_coin=0; END IF;
+		IF para_diamond IS NULL THEN SET para_diamond=0; END IF;
 			
 	END IF;
 		
 	-- 记录日志
-	UPDATE SystemStreamInfo SET GameLogonSuccess=GameLogonSuccess+1 WHERE DateID=paraDateID;
+	UPDATE system_stream_info SET game_logon_success=game_logon_success+1 WHERE sate_id=para_sate_id;
 	IF ROW_COUNT()=0 THEN
-		INSERT SystemStreamInfo (DateID, GameLogonSuccess,CollectDate) VALUES (paraDateID, 1,NOW());
+		INSERT system_stream_info (sate_id, game_logon_success,collect_date) VALUES (para_sate_id, 1,NOW());
 	END IF;
 	
 	-- 更新信息
-	UPDATE AccountsInfo SET GameLogonTimes=GameLogonTimes+1, LastLogonDate=NOW(), LastLogonIP= strClientIP,LastLogonMachine=strMachineID	WHERE UserID=paraUserID;
+	UPDATE accounts_info SET game_logon_times=game_logon_times+1, last_logon_date=NOW(), last_logon_ip= str_client_ip,last_logon_machine=str_machine_id	WHERE user_id=para_user_id;
 	
 	-- 人物形象
-	SELECT RoleID,SuitID,PhotoFrameID  INTO paraRoleID,paraSuitID,paraPhotoFrameID FROM AccountsImage WHERE UserID = paraUserID;
+	SELECT role_id,suit_id,photo_frame_id  INTO para_role_id,para_suit_id,para_photo_frame_id FROM accounts_image WHERE user_id = para_user_id;
 	
--- 	IF paraLockServerID IS NOT NULL THEN SET paraLockServerID =0;END IF;	
--- 	IF paraKindID IS NOT NULL THEN SET paraKindID =0;END IF;	
+-- 	IF para_lock_server_id IS NOT NULL THEN SET para_lock_server_id =0;END IF;	
+-- 	IF para_kind_id IS NOT NULL THEN SET para_kind_id =0;END IF;	
 -- 
--- 	SELECT RoomCard INTO paraRoomCard FROM xjtreasuredb.userroomcard WHERE UserID=paraUserID;
--- 	IF paraRoomCard IS NULL THEN SET paraRoomCard=0;END IF;
+-- 	SELECT room_card INTO para_room_card FROM xjtreasuredb.userroom_card WHERE user_id=para_user_id;
+-- 	IF para_room_card IS NULL THEN SET para_room_card=0;END IF;
 	
 	-- 写入登录日志
-	IF numDeviceType IS NULL THEN
-		SET numDeviceType =1;	-- ANDROID
+	IF num_device_type IS NULL THEN
+		SET num_device_type =1;	-- ANDROID
 	END IF;	
-	INSERT INTO xjrecorddb.RecordLogin (UserID, ClientIP, ServerIP, LoginDate, Terminal, LoginWay) VALUES(paraUserID, strClientIP, strServerIP, NOW(), numDeviceType, 2);	
+	INSERT INTO record_login (user_id, client_ip, server_ip, login_date, terminal, login_way) VALUES(para_user_id, str_client_ip, str_server_ip, NOW(), num_device_type, 2);	
 
-	SELECT AccountOrCard INTO paraBinderCardNum FROM xjaccountsdb.ExchangeAccount WHERE UserID = paraUserID;
-	IF paraBinderCardNum IS NULL THEN
-			SET paraBinderCardNum ='';
+	SELECT account_or_card INTO para_binder_card_num FROM exchange_account WHERE user_id = para_user_id;
+	IF para_binder_card_num IS NULL THEN
+			SET para_binder_card_num ='';
 	END IF;
 	
 	-- 输出变量
-	SELECT 0 AS errorCode, '' AS errorMsg;
-	SELECT paraUserID AS UserID, paraNickName AS NikeName, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamonds, paraMobile AS PhoneNumber,paraBinderCardNum AS BinderCardNum , paraLevelNum AS MemberOrder,paraFaceID AS FaceID,paraRoleID AS RoleID,paraSuitID AS SuitID,paraPhotoFrameID AS PhotoFrameID,paraGender AS Gender;
+	SELECT 0 AS error_code, '' AS error_msg;
+	SELECT para_user_id AS user_id, para_nick_name AS NikeName, para_gold_coin AS UserGold, para_diamond  AS user_diamonds, para_mobile AS phone_number,para_binder_card_num AS binder_card_num , para_level_num AS MemberOrder,para_face_id AS face_id,para_role_id AS role_id,para_suit_id AS suit_id,para_photo_frame_id AS photo_frame_id,para_gender AS gender;
 
 END
 ;;
@@ -2001,206 +2002,206 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `LSP_WechatLogin`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `LSP_WechatLogin`(IN `numAgentID` int, IN `strUserUin` varchar(32), IN `numGender` tinyint, IN `strNickName` varchar(32), IN `strHeadImageUrl` varchar(255), IN `strMachineID` varchar(64), IN `numDeviceType` int, IN `strClientIP` varchar(15), IN `strServerIP` varchar(15))
+CREATE DEFINER=`root`@`%` PROCEDURE `LSP_WechatLogin`(IN `num_agent_id` int, IN `str_user_uin` varchar(32), IN `num_gender` tinyint, IN `str_nick_name` varchar(32), IN `str_head_image_url` varchar(255), IN `str_machine_id` varchar(64), IN `num_device_type` int, IN `str_client_ip` varchar(15), IN `str_server_ip` varchar(15))
     COMMENT '微信登陆'
 exitpro:BEGIN
 	
 	-- 基本信息
-	DECLARE paraUserID INT;
-	DECLARE paraFaceID SMALLINT; -- 头像id
-	DECLARE paraAccounts VARCHAR(31); -- 用户账号
-	DECLARE paraNickName VARCHAR(31); 	-- 昵称
-	DECLARE paraUnderWrite VARCHAR(100);  -- 签名
-	DECLARE paraPlayTimeCount INT;
-	DECLARE paraPlatformID TINYINT;
-	DECLARE paraLevelNum INT;
-	DECLARE paraMobile VARCHAR(11);	
-	DECLARE paraBinderCardNum VARCHAR(100);	
+	DECLARE para_user_id INT;
+	DECLARE para_face_id SMALLINT; -- 头像id
+	DECLARE para_accounts VARCHAR(31); -- 用户账号
+	DECLARE para_nick_name VARCHAR(31); 	-- 昵称
+	DECLARE para_under_write VARCHAR(100);  -- 签名
+	DECLARE para_play_time_count INT;
+	DECLARE para_platform_id TINYINT;
+	DECLARE para_level_num INT;
+	DECLARE para_mobile VARCHAR(11);	
+	DECLARE para_binder_card_num VARCHAR(100);	
 	
 	-- 用户额外信息
-	DECLARE paraRoleID INT;		-- 角色标识
-	DECLARE paraSuitID INT;		-- 套装标识
-	DECLARE paraPhotoFrameID INT; -- 头相框标识
+	DECLARE para_role_id INT;		-- 角色标识
+	DECLARE para_suit_id INT;		-- 套装标识
+	DECLARE para_photo_frame_id INT; -- 头相框标识
 	
 	-- 财富变量
-	DECLARE paraGoldCoin DECIMAL(18,3);	-- 金币
-	DECLARE paraDiamond INT;	-- 钻石
+	DECLARE para_gold_coin DECIMAL(18,3);	-- 金币
+	DECLARE para_diamond INT;	-- 钻石
 	
 	-- 辅助变量
-	DECLARE paraEnjoinLogon INT;
-	DECLARE paraGender TINYINT;	-- 性别：0女，1男
+	DECLARE para_enjoin_logon INT;
+	DECLARE para_gender TINYINT;	-- 性别：0女，1男
 	
 	-- 查询用户
-	DECLARE paraNullity TINYINT;
-	DECLARE paraStunDown TINYINT;
-	DECLARE paraLogonPass CHAR(32);
-	DECLARE paraInsurePass CHAR(32);
-	DECLARe paraLastLogonIP  CHAR(15);
-	DECLARE paraLastLogonMachine  CHAR(64);
-	DECLARE paraMoorMachine  TINYINT;
-	DECLARE paraLockServerID INT;
+	DECLARE para_nullity TINYINT;
+	DECLARE para_stun_down TINYINT;
+	DECLARE para_logon_pass CHAR(32);
+	DECLARE para_insure_pass CHAR(32);
+	DECLARe para_last_logon_ip  CHAR(15);
+	DECLARE para_last_logon_machine  CHAR(64);
+	DECLARE para_moor_machine  TINYINT;
+	DECLARE para_lock_server_id INT;
 	
 	
-	DECLARE paraDateID INT;
+	DECLARE para_date_id INT;
 	
 	-- 临时账号
-	DECLARE strTemp VARCHAR(32);	
-	DECLARE strTempName VARCHAR(32);	
+	DECLARE str_temp VARCHAR(32);	
+	DECLARE str_temp_name VARCHAR(32);	
 	
 	-- 平台
-	DECLARE paraGrantIPCount INT;
-	DECLARE paraGrantCoin DECIMAL(18,3);
+	DECLARE para_grant_ip_count INT;
+	DECLARE para_grant_coin DECIMAL(18,3);
 	-- 赠送次数
-	DECLARE paraGrantCount INT;
+	DECLARE para_grant_count INT;
 
-	DECLARE paraKindID INT;	
-	DECLARE paraRoomCard INT;
+	DECLARE para_kind_id INT;	
+	DECLARE para_room_card INT;
 	
 		
-	DECLARE paraPath varchar(1000);
-	DECLARE paraAgentLevel INT;	
-	DECLARE paraAgentID INT;
+	DECLARE para_path varchar(1000);
+	DECLARE para_agent_level INT;	
+	DECLARE para_agent_id INT;
 	
 	
 	-- 登录暂停
-	SET paraEnjoinLogon =(SELECT StatusValue FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon');
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 1 AS errorCode,  (SELECT StatusString FROM xjplatformdb.SystemStatusInfo WHERE StatusName='EnjoinLogon') AS errorMsg;	
+	SET para_enjoin_logon =(SELECT status_value FROM system_status_info WHERE status_name='enjoin_logon');
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 1 AS error_code,  (SELECT status_string FROM system_status_info WHERE status_name='enjoin_logon') AS error_msg;	
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验地址
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineAddress WHERE AddrString=strClientIP AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_address WHERE addr_string=str_client_ip AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您所在的 IP 地址的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
 	-- 效验机器
-	SET paraEnjoinLogon = (SELECT EnjoinLogon FROM ConfineMachine WHERE MachineSerial=strMachineID AND (EnjoinOverDate>now() OR EnjoinOverDate IS NULL));
-	IF paraEnjoinLogon IS NOT NULL AND paraEnjoinLogon<>0 THEN
-		SELECT 2 AS errorCode, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS errorMsg;	
+	SET para_enjoin_logon = (SELECT enjoin_logon FROM confine_machine WHERE machine_serial=str_machine_id AND (enjoin_over_date>now() OR enjoin_over_date IS NULL));
+	IF para_enjoin_logon IS NOT NULL AND para_enjoin_logon<>0 THEN
+		SELECT 2 AS error_code, '抱歉地通知您，系统禁止了您的机器的登录功能，请联系客户服务中心了解详细情况！' AS error_msg;	
 		LEAVE exitpro;
 	END IF;
 	
 	-- 查询用户
-	SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,LastLogonMachine
-	INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraLastLogonMachine
-	FROM AccountsInfo WHERE UserUin=strUserUin;
+	SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,LevelNum,last_logon_machine
+	INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_last_logon_machine
+	FROM accounts_info WHERE user_uin=str_user_uin;
 
-	SET paraGoldCoin=0;
-	SET paraDiamond=0;
-	SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED);
+	SET para_gold_coin=0;
+	SET para_diamond=0;
+	SET para_date_id = CAST(CAST(NOW() AS date) AS UNSIGNED);
 	
-	IF paraUserID IS NULL THEN
+	IF para_user_id IS NULL THEN
 		
 		-- 账号生成
-		SET strTemp ='';
-		WHILE strTemp = '' DO	
-			SET strTemp= LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),12);
+		SET str_temp ='';
+		WHILE str_temp = '' DO	
+			SET str_temp= LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),12);
 			-- 查询昵称
-			IF EXISTS (SELECT UserID FROM AccountsInfo WHERE Accounts=strTemp) THEN
-				SET strTemp='';
+			IF EXISTS (SELECT user_id FROM accounts_info WHERE accounts=str_temp) THEN
+				SET str_temp='';
 			END IF;
 		END WHILE;
 		
 		
-		SET strTempName=strNickName;
-		IF EXISTS (SELECT UserID FROM AccountsInfo WHERE NickName=strTempName) THEN		
-			SET strTempName= strTempName + LEFT(strTemp,3);
+		SET str_temp_name=str_nick_name;
+		IF EXISTS (SELECT user_id FROM accounts_info WHERE nick_name=str_temp_name) THEN		
+			SET str_temp_name= str_temp_name + LEFT(str_temp,3);
 		END IF;
 		
 		-- 获取用户分层
-		SELECT LevelNum  INTO paraLevelNum FROM AccountsLevel WHERE IsDefault =0;
-		IF paraLevelNum IS NULL THEN
-			SET paraLevelNum = 0;
+		SELECT LevelNum  INTO para_level_num FROM accountsLevel WHERE IsDefault =0;
+		IF para_level_num IS NULL THEN
+			SET para_level_num = 0;
 		END IF;
 		
 		-- 代理信息
-		IF numAgentID<>0 THEN
+		IF num_agent_id<>0 THEN
 			
 			-- 查代理
-			SELECT UserID, AgentLevel + 1,ParentPath INTO paraAgentID,paraAgentLevel,paraPath FROM AccountsAgent WHERE UserID=numAgentID;
+			SELECT user_id, agent_level + 1,ParentPath INTO para_agent_id,para_agent_level,para_path FROM accountsAgent WHERE user_id=num_agent_id;
 
 			-- 结果处理
-			IF paraAgentID IS NULL THEN
-				SELECT 3 AS errorCode, '您所填写的推荐人不存在或者填写错误，请检查后再次注册！';
+			IF para_agent_id IS NULL THEN
+				SELECT 3 AS error_code, '您所填写的推荐人不存在或者填写错误，请检查后再次注册！';
 				LEAVE exitpro;
 			END IF;
 
-			IF paraAgentLevel = 1 THEN
-				SET paraPath = CONVERT(numAgentID,CHAR(5));
+			IF para_agent_level = 1 THEN
+				SET para_path = CONVERT(num_agent_id,CHAR(5));
 			ELSE
-				SET paraPath = CONCAT(paraPath , ',' , CONVERT(numAgentID,CHAR(5)));
+				SET para_path = CONCAT(para_path , ',' , CONVERT(num_agent_id,CHAR(5)));
 			END IF;
 		ELSE
-			SET paraAgentID=0;
-			SET paraAgentLevel=0;
-			SET paraPath ='';
+			SET para_agent_id=0;
+			SET para_agent_level=0;
+			SET para_path ='';
 		END IF;
 	
 		-- 注册用户
-		INSERT AccountsInfo (Accounts,NickName,UserUin,Gender,LogonPass,InsurePass,RegisterIP,LastLogonIP,LastLogonDate,RegisterMobile,RegisterMachine,LevelNum,LastLogonMachine,PlatformID)
-		VALUES (strTemp,strTempName,strUserUin,numGender,'25d55ad283aa400af464c76d713c07ad','',strClientIP,strClientIP,NOW(),'',strMachineID,paraLevelNum,strMachineID,3);
+		INSERT accounts_info (accounts,nick_name,user_uin,gender,logon_pass,insure_pass,register_ip,last_logon_ip,last_logon_date,register_mobile,register_machine,LevelNum,last_logon_machine,platform_id)
+		VALUES (str_temp,str_temp_name,str_user_uin,num_gender,'25d55ad283aa400af464c76d713c07ad','',str_client_ip,str_client_ip,NOW(),'',str_machine_id,para_level_num,str_machine_id,3);
 		
 		-- 玩家账号
-		SELECT UserID INTO paraUserID FROM AccountsInfo WHERE Accounts=strTemp;		
-		-- SET strTemp= CONCAT('Wechat_', CONVERT(paraUserID,CHAR(5)));
+		SELECT user_id INTO para_user_id FROM accounts_info WHERE accounts=str_temp;		
+		-- SET str_temp= CONCAT('Wechat_', CONVERT(para_user_id,CHAR(5)));
 		
 		-- 更新账号昵称
-		-- UPDATE AccountsInfo SET Accounts=strTemp WHERE UserID=paraUserID;
+		-- UPDATE accounts_info SET accounts=str_temp WHERE user_id=para_user_id;
 				
 		-- 查询用户
-		SELECT UserID,Accounts, NickName,UnderWrite,LogonPass,InsurePass,FaceID, Gender, Nullity,MoorMachine,RegisterMobile,LevelNum,LastLogonMachine
-		INTO paraUserID,paraAccounts,paraNickName,paraUnderWrite,paraLogonPass,paraInsurePass,paraFaceID,paraGender,paraNullity,paraMoorMachine,paraMobile,paraLevelNum,paraLastLogonMachine
-		FROM AccountsInfo WHERE Accounts=strTemp AND NickName = strTempName;
+		SELECT user_id,accounts, nick_name,under_write,logon_pass,insure_pass,face_id, gender, nullity,moor_machine,register_mobile,LevelNum,last_logon_machine
+		INTO para_user_id,para_accounts,para_nick_name,para_under_write,para_logon_pass,para_insure_pass,para_face_id,para_gender,para_nullity,para_moor_machine,para_mobile,para_level_num,para_last_logon_machine
+		FROM accounts_info WHERE accounts=str_temp AND nick_name = str_temp_name;
 
 		-- 人物形象
-		INSERT AccountsImage(UserID)VALUES(paraUserID);
+		INSERT accounts_image(user_id)VALUES(para_user_id);
 
-		INSERT xjtreasuredb.GameScoreInfo(UserID, GoldCoin, Diamond) VALUES (paraUserID, paraGoldCoin,paraDiamond);
+		INSERT game_score_info(user_id, gold_coin, diamond) VALUES (para_user_id, para_gold_coin,para_diamond);
 		
-		INSERT AccountsAgent(UserID,ParentId,AgentLevel,ParentPath)VALUES(paraUserID,paraAgentID,paraAgentLevel,paraPath);		
+		INSERT accountsAgent(user_id,ParentId,agent_level,ParentPath)VALUES(para_user_id,para_agent_id,para_agent_level,para_path);		
 		
 		-- ---------注册赠送 ---------------------
 		-- 读取变量
-		SELECT StatusValue INTO paraGrantIPCount FROM xjplatformdb.SystemStatusInfo WHERE StatusName='GrantIPCount';
-		SELECT StatusValue INTO paraGrantCoin FROM xjplatformdb.SystemStatusInfo WHERE StatusName='GrantScoreCount';
+		SELECT status_value INTO para_grant_ip_count FROM system_status_info WHERE status_name='grant_ip_count';
+		SELECT status_value INTO para_grant_coin FROM system_status_info WHERE status_name='GrantScoreCount';
 		
 		-- 赠送限制
-		IF paraGrantCoin IS NOT NULL AND paraGrantCoin>0 AND paraGrantIPCount IS NOT NULL AND paraGrantIPCount>0 THEN
+		IF para_grant_coin IS NOT NULL AND para_grant_coin>0 AND para_grant_ip_count IS NOT NULL AND para_grant_ip_count>0 THEN
 			
-			SELECT GrantCount INTO paraGrantCount FROM SystemGrantCount WHERE DateID=paraDateID AND RegisterIP=strClientIP;
+			SELECT grant_count INTO para_grant_count FROM system_grant_count WHERE date_id=para_date_id AND register_ip=str_client_ip;
 		
 			-- 次数判断
-			IF paraGrantCount IS NOT NULL AND paraGrantCount>=paraGrantIPCount THEN
-				SET paraGrantCoin=0;
+			IF para_grant_count IS NOT NULL AND para_grant_count>=para_grant_ip_count THEN
+				SET para_grant_coin=0;
 			END IF;
 		END IF;
 		
 		-- 赠送金币
-		IF paraGrantCoin IS NOT NULL AND paraGrantCoin>0 THEN
+		IF para_grant_coin IS NOT NULL AND para_grant_coin>0 THEN
 			-- 更新记录
-			UPDATE SystemGrantCount SET GrantCoin=GrantCoin+paraGrantCoin, GrantCount=GrantCount+1 WHERE DateID=paraDateID AND RegisterIP=strClientIP;
+			UPDATE system_grant_count SET grant_coin=grant_coin+para_grant_coin, grant_count=grant_count+1 WHERE date_id=para_date_id AND register_ip=str_client_ip;
 			-- 插入记录
 			IF ROW_COUNT()=0 THEN
-				INSERT SystemGrantCount (DateID, RegisterIP, RegisterMachine, GrantCoin, GrantCount,CollectDate) VALUES (paraDateID, strClientIP, '', paraGrantCoin, 1,NOW());
+				INSERT system_grant_count (date_id, register_ip, register_machine, grant_coin, grant_count,collect_date) VALUES (para_date_id, str_client_ip, '', para_grant_coin, 1,NOW());
 			END IF;
 
 			-- 查询金币			
-			SELECT GoldCoin INTO paraGoldCoin FROM xjtreasuredb.GameScoreInfo WHERE UserID=paraUserID;			
-			IF paraGoldCoin IS NULL THEN SET paraGoldCoin=0; END IF;
+			SELECT gold_coin INTO para_gold_coin FROM game_score_info WHERE user_id=para_user_id;			
+			IF para_gold_coin IS NULL THEN SET para_gold_coin=0; END IF;
 			
 			-- 赠送金币
-			UPDATE xjtreasuredb.GameScoreInfo SET GoldCoin= GoldCoin + paraGrantCoin WHERE UserID=paraUserID;
+			UPDATE game_score_info SET gold_coin= gold_coin + para_grant_coin WHERE user_id=para_user_id;
 
 			-- 写入金额变更记录
-			INSERT INTO xjtreasuredb.GameScoreChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-			VALUES (paraUserID,4,NOW(),paraGrantCoin, paraGoldCoin + paraGrantCoin,strClientIP,'第三方登录金币赠送');
+			INSERT INTO game_score_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+			VALUES (para_user_id,4,NOW(),para_grant_coin, para_gold_coin + para_grant_coin,str_client_ip,'第三方登录金币赠送');
 
 			-- 流水账
-			INSERT INTO xjtreasuredb.RecordPresentInfo(UserID,PreCoin,PresentCoin,TypeID,IPAddress,CollectDate,DateID)
-			VALUES (paraUserID,paraGoldCoin,paraGrantCoin,1,strClientIP,NOW(),paraDateID);
+			INSERT INTO record_present_info(user_id,pre_coin,present_coin,type_id,ip_address,collect_date,date_id)
+			VALUES (para_user_id,para_gold_coin,para_grant_coin,1,str_client_ip,NOW(),para_date_id);
 						
 		END IF;		
 		
@@ -2208,61 +2209,61 @@ exitpro:BEGIN
 	ELSE
 		
 		-- 帐号禁止
-		IF paraNullity<>0 THEN
-			SELECT 2 AS errorCode, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！' AS errorMsg;
+		IF para_nullity<>0 THEN
+			SELECT 2 AS error_code, '您的帐号暂时处于冻结状态，请联系客户服务中心了解详细情况！' AS error_msg;
 			LEAVE exitpro;
 		END	 IF;		
 				
 		-- 固定机器
-		IF paraMoorMachine=1 THEN
-			IF paraLastLogonMachine<>strMachineID THEN
-				SELECT 2 AS errorCode, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS errorMsg;
+		IF para_moor_machine=1 THEN
+			IF para_last_logon_machine<>str_machine_id THEN
+				SELECT 2 AS error_code, '您的帐号使用固定机器登录功能，您现所使用的机器不是所指定的机器！' AS error_msg;
 				LEAVE exitpro;
 			END IF;
 		END IF;
 
 				
 		-- 查询金币
-		SELECT GoldCoin ,Diamond INTO paraGoldCoin, paraDiamond FROM xjtreasuredb.GameScoreInfo WHERE UserID=paraUserID;
+		SELECT gold_coin ,diamond INTO para_gold_coin, para_diamond FROM game_score_info WHERE user_id=para_user_id;
 		-- 数据调整
-		IF paraGoldCoin IS NULL THEN SET paraGoldCoin=0; END IF;
-		IF paraDiamond IS NULL THEN SET paraDiamond=0; END IF;
+		IF para_gold_coin IS NULL THEN SET para_gold_coin=0; END IF;
+		IF para_diamond IS NULL THEN SET para_diamond=0; END IF;
 	
 	
 	END IF;
 	
 	-- 记录日志
-	UPDATE SystemStreamInfo SET GameLogonSuccess=GameLogonSuccess+1 WHERE DateID=paraDateID;
+	UPDATE system_stream_info SET game_logon_success=game_logon_success+1 WHERE date_id=para_date_id;
 	IF ROW_COUNT()=0 THEN
-		INSERT SystemStreamInfo (DateID, GameLogonSuccess,CollectDate) VALUES (paraDateID, 1,NOW());
+		INSERT system_stream_info (date_id, game_logon_success,collect_date) VALUES (para_date_id, 1,NOW());
 	END IF;
 	
 	-- 更新信息
-	UPDATE AccountsInfo SET GameLogonTimes=GameLogonTimes+1, LastLogonDate=NOW(), LastLogonIP= strClientIP,LastLogonMachine=strMachineID	WHERE UserID=paraUserID;
+	UPDATE accounts_info SET game_logon_times=game_logon_times+1, last_logon_date=NOW(), last_logon_ip= str_client_ip,last_logon_machine=str_machine_id	WHERE user_id=para_user_id;
 	
 	-- 人物形象
-	SELECT RoleID,SuitID,PhotoFrameID  INTO paraRoleID,paraSuitID,paraPhotoFrameID FROM AccountsImage WHERE UserID = paraUserID;
+	SELECT role_id,suit_id,photo_frame_id  INTO para_role_id,para_suit_id,para_photo_frame_id FROM accounts_image WHERE user_id = para_user_id;
 	
--- 	IF paraLockServerID IS NOT NULL THEN SET paraLockServerID =0;END IF;	
--- 	IF paraKindID IS NOT NULL THEN SET paraKindID =0;END IF;	
+-- 	IF para_lock_server_id IS NOT NULL THEN SET para_lock_server_id =0;END IF;	
+-- 	IF para_kind_id IS NOT NULL THEN SET para_kind_id =0;END IF;	
 -- 
--- 	SELECT RoomCard INTO paraRoomCard FROM xjtreasuredb.UserRoomCard WHERE UserID=paraUserID;
--- 	IF paraRoomCard IS NULL THEN SET paraRoomCard=0;END IF;
+-- 	SELECT RoomCard INTO para_room_card FROM xjtreasuredb.UserRoomCard WHERE user_id=para_user_id;
+-- 	IF para_room_card IS NULL THEN SET para_room_card=0;END IF;
 		
 	-- 写入登录日志	
-	IF numDeviceType IS NULL THEN
-		SET numDeviceType =1;	-- ANDROID
+	IF num_device_type IS NULL THEN
+		SET num_device_type =1;	-- ANDROID
 	END IF;					
-	INSERT INTO xjrecorddb.RecordLogin (UserID, ClientIP, ServerIP, LoginDate, Terminal, LoginWay) VALUES(paraUserID, strClientIP, strServerIP, NOW(), numDeviceType, 3);		
+	INSERT INTO record_login (user_id, client_ip, server_ip, login_date, terminal, login_way) VALUES(para_user_id, str_client_ip, str_server_ip, NOW(), num_device_type, 3);		
 	
-	SELECT AccountOrCard INTO paraBinderCardNum FROM xjaccountsdb.ExchangeAccount WHERE UserID = paraUserID;
-	IF paraBinderCardNum IS NULL THEN
-			SET paraBinderCardNum ='';
+	SELECT account_or_card INTO para_binder_card_num FROM exchange_account WHERE user_id = para_user_id;
+	IF para_binder_card_num IS NULL THEN
+			SET para_binder_card_num ='';
 	END IF;
 	
 	-- 输出变量
-	SELECT 0 AS errorCode, '' AS errorMsg;
-	SELECT  paraUserID AS UserID, paraNickName AS NikeName, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamonds, paraMobile AS PhoneNumber,paraBinderCardNum AS BinderCardNum , paraLevelNum AS MemberOrder,paraFaceID AS FaceID,paraRoleID AS RoleID,paraSuitID AS SuitID,paraPhotoFrameID AS PhotoFrameID ,paraGender AS Gender;
+	SELECT 0 AS error_code, '' AS error_msg;
+	SELECT  para_user_id AS user_id, para_nick_name AS nike_name, para_gold_coin AS UserGold, para_diamond  AS user_diamonds, para_mobile AS phone_number,para_binder_card_num AS binder_card_num , para_level_num AS MemberOrder,para_face_id AS face_id,para_role_id AS role_id,para_suit_id AS suit_id,para_photo_frame_id AS photo_frame_id ,para_gender AS gender;
 		
 	
 
@@ -2289,44 +2290,44 @@ BEGIN#Routine body goes here...
 		now_month.now_time AS Month,
 	CASE
 			
-			WHEN now_month.RegisterCount IS NULL 
-			OR now_month.RegisterCount = 0 THEN
-				0 ELSE now_month.RegisterCount 
-			END CurRegisterCount,
+			WHEN now_month.register_count IS NULL 
+			OR now_month.register_count = 0 THEN
+				0 ELSE now_month.register_count 
+			END cur_register_count,
 CASE
 		
-		WHEN old_month.RegisterCount IS NULL 
-		OR old_month.RegisterCount = 0 THEN
-			0 ELSE old_month.RegisterCount 
-		END PreRegisterCount,
+		WHEN old_month.register_count IS NULL 
+		OR old_month.register_count = 0 THEN
+			0 ELSE old_month.register_count 
+		END Preregister_count,
 CASE
 		
-		WHEN ( old_month.RegisterCount IS NULL OR old_month.RegisterCount = 0 ) 
-		AND ( now_month.RegisterCount IS NOT NULL AND now_month.RegisterCount <> 0 ) THEN
+		WHEN ( old_month.register_count IS NULL OR old_month.register_count = 0 ) 
+		AND ( now_month.register_count IS NOT NULL AND now_month.register_count <> 0 ) THEN
 			100.00 ELSE (
-				CONVERT ( ( ( now_month.RegisterCount - old_month.RegisterCount ) / old_month.RegisterCount ) * 100, DECIMAL ( 10, 2 ) ) 
+				CONVERT ( ( ( now_month.register_count - old_month.register_count ) / old_month.register_count ) * 100, DECIMAL ( 10, 2 ) ) 
 			) 
 		END MonthRatio 
 FROM
 	(
 	SELECT
-		date_format( a.CollectDate, '%Y-%m' ) AS now_time,
-		sum( a.GameRegisterSuccess ) AS RegisterCount 
+		date_format( a.collect_date, '%Y-%m' ) AS now_time,
+		sum( a.game_register_success ) AS register_count 
 	FROM
-		SystemStreamInfo a
-	WHERE CollectDate >= begindate AND CollectDate < enddate
+		system_stream_info a
+	WHERE collect_date >= begindate AND collect_date < enddate
 	GROUP BY
-		date_format( a.CollectDate, '%Y-%m' ) 
+		date_format( a.collect_date, '%Y-%m' ) 
 	) now_month
 	LEFT JOIN (
 	SELECT
-		date_format( DATE_ADD( b.CollectDate, INTERVAL 1 MONTH ), '%Y-%m' ) AS now_time,
-		sum( b.GameRegisterSuccess ) AS RegisterCount 
+		date_format( DATE_ADD( b.collect_date, INTERVAL 1 MONTH ), '%Y-%m' ) AS now_time,
+		sum( b.game_register_success ) AS register_count 
 	FROM
-		SystemStreamInfo b 
-	WHERE CollectDate >= begindate AND CollectDate < enddate
+		system_stream_info b 
+	WHERE collect_date >= begindate AND collect_date < enddate
 	GROUP BY
-		date_format( DATE_ADD( b.CollectDate, INTERVAL 1 MONTH ), '%Y-%m' ) 
+		date_format( DATE_ADD( b.collect_date, INTERVAL 1 MONTH ), '%Y-%m' ) 
 	) old_month ON now_month.now_time = old_month.now_time;
 	
 	
@@ -2339,19 +2340,19 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `PW_PM_RegisterStatistics`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `PW_PM_RegisterStatistics`(IN `dateBegin` datetime, IN `dateEnd` datetime, IN `intType` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `PW_PM_RegisterStatistics`(IN `date_begin` datetime, IN `date_end` datetime, IN `int_type` int)
     COMMENT '注册统计'
 BEGIN
 	#Routine body goes here...
 	
 	-- 日统计
-	IF intType = 1 THEN
+	IF int_type = 1 THEN
 		
-		SELECT date_format(CollectDate,'%m-%d') as CollectDate, SUM(GameRegisterSuccess) AS GameRegisterSuccess FROM SystemStreamInfo WHERE CollectDate >= dateBegin AND CollectDate < dateEnd GROUP BY date_format(CollectDate, '%m-%d');		
+		SELECT date_format(collect_date,'%m-%d') as collect_date, SUM(game_register_success) AS game_register_success FROM system_stream_info WHERE collect_date >= date_begin AND collect_date < date_end GROUP BY date_format(collect_date, '%m-%d');		
 		
 	ELSE
 			-- 月统计
-			SELECT date_format(CollectDate,'%Y-%m') as CollectDate,SUM(GameRegisterSuccess) AS GameRegisterSuccess FROM SystemStreamInfo WHERE CollectDate >= dateBegin AND CollectDate < dateEnd GROUP BY date_format(CollectDate, '%Y-%m');
+			SELECT date_format(collect_date,'%Y-%m') as collect_date,SUM(game_register_success) AS game_register_success FROM system_stream_info WHERE collect_date >= date_begin AND collect_date < date_end GROUP BY date_format(collect_date, '%Y-%m');
 			
 	END IF;	
 	
@@ -2371,16 +2372,16 @@ BEGIN
 	#Routine body goes here...
 	
 
-	DECLARE paraCurDateID INT;
-	SET paraCurDateID = CAST( CAST( NOW() AS date) AS UNSIGNED );	
+	DECLARE para_cur_date_id INT;
+	SET para_cur_date_id = CAST( CAST( NOW() AS date) AS UNSIGNED );	
 	
 	-- 直属下级用户记录表
-	DROP TABLE IF  EXISTS AllAgentTable;
-	CREATE TEMPORARY TABLE AllAgentTable(  `UserID` int(11) NOT NULL )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS all_agent_table;
+	CREATE TEMPORARY TABLE all_agent_table(  `user_id` int(11) NOT NULL )ENGINE = InnoDB;
 	
-	INSERT INTO AllAgentTable SELECT UserID FROM (SELECT agent.UserID FROM xjaccountsdb.AccountsAgent agent INNER JOIN xjaccountsdb.AccountsInfo info ON info.UserID = agent.UserID WHERE agent.Nullity =0) ABC;	
+	INSERT INTO all_agent_table SELECT user_id FROM (SELECT agent.user_id FROM accounts_agent agent INNER JOIN accounts_info info ON info.user_id = agent.user_id WHERE agent.nullity =0) ABC;	
 	
-	SELECT paraCurDateID, UserID,COM_SP_GetChildNum(UserID, 1),COM_SP_GetChildNum(UserID, 2) FROM AllAgentTable;		
+	SELECT para_cur_date_id, user_id,COM_SP_GetChildNum(user_id, 1),COM_SP_GetChildNum(user_id, 2) FROM all_agent_table;		
 
 END
 ;;
@@ -2396,141 +2397,141 @@ CREATE DEFINER=`root`@`%` PROCEDURE `Timing_SP_AgentFullInfo`()
 BEGIN
 	#Routine body goes here...
 	
-	DECLARE paraCurDateID INT;
-	DECLARE paraPreDateID INT;	
-	DECLARE paraBeginTime datetime;	
-	DECLARE paraEndTime datetime;	
+	DECLARE par_cur_date_id INT;
+	DECLARE para_pre_date_id INT;	
+	DECLARE para_begin_time datetime;	
+	DECLARE para_end_time datetime;	
 	
 	DECLARE done INT DEFAULT 0;
 	
-	DECLARE paraUserID INT;	
+	DECLARE para_user_id INT;	
 	
-	DECLARE curUserID INT;	
-	DECLARE curParentID INT;	
-	DECLARE curParentPath VARCHAR(100);	
-	DECLARE curAgentLevel INT;	
-	DECLARE curCurrentAmount DECIMAL(18,3);	
-	DECLARE curTotalAmount DECIMAL(18,3);	
-	DECLARE curRegisterDate datetime;	
+	DECLARE cur_user_id INT;	
+	DECLARE cur_parent_id INT;	
+	DECLARE cur_parent_path VARCHAR(100);	
+	DECLARE cur_agent_level INT;	
+	DECLARE cur_current_amount DECIMAL(18,3);	
+	DECLARE cur_total_amount DECIMAL(18,3);	
+	DECLARE cur_register_date datetime;	
 	
-	DECLARE AllChildCount INT;
-	DECLARE DireChildCount INT;
-	DECLARE AllCount INT;
-	DECLARE DireCount INT;		
+	DECLARE all_child_count INT;
+	DECLARE dire_child_count INT;
+	DECLARE all_count INT;
+	DECLARE dire_count INT;		
 	
 	-- 流水、输赢金额
-	DECLARE paraWaterScore DECIMAL(18,3);	
-	DECLARE paraTotalScore DECIMAL(18,3);	
-	DECLARE paraAllWaterScore DECIMAL(18,3);	
-	DECLARE paraAllTotalScore DECIMAL(18,3);	
-	DECLARE paraDireWaterScore DECIMAL(18,3);	
-	DECLARE paraDireTotalScore DECIMAL(18,3);	
+	DECLARE para_water_score DECIMAL(18,3);	
+	DECLARE para_total_score DECIMAL(18,3);	
+	DECLARE para_allwater_score DECIMAL(18,3);	
+	DECLARE para_all_total_score DECIMAL(18,3);	
+	DECLARE para_dire_water_score DECIMAL(18,3);	
+	DECLARE para_dire_total_score DECIMAL(18,3);	
 	-- 充值、兑换
-	DECLARE paraAllRecharge DECIMAL(18,3);	
-	DECLARE paraAllExchange DECIMAL(18,3);	
-	DECLARE paraDireRecharge DECIMAL(18,3);	
-	DECLARE paraDireExchange DECIMAL(18,3);
-	DECLARE paraRecharge DECIMAL(18,3);	
-	DECLARE paraExchange DECIMAL(18,3);	
+	DECLARE para_all_recharge DECIMAL(18,3);	
+	DECLARE para_all_exchange DECIMAL(18,3);	
+	DECLARE para_dire_recharge DECIMAL(18,3);	
+	DECLARE para_dire_exchange DECIMAL(18,3);
+	DECLARE para_recharge DECIMAL(18,3);	
+	DECLARE para_exchange DECIMAL(18,3);	
 	-- 用户佣金
-	DECLARE paraAgentRoyalty DECIMAL(18,3);	
-	DECLARE paraPercentValue DECIMAL(5,3);	
+	DECLARE para_agent_royalty DECIMAL(18,3);	
+	DECLARE para_percent_value DECIMAL(5,3);	
 
-	DECLARE paraNotAgentRoyalty DECIMAL(18,3);	
-	DECLARE paraGetAgentRoyalty DECIMAL(18,3);	
+	DECLARE para_not_agent_royalty DECIMAL(18,3);	
+	DECLARE para_get_agent_royalty DECIMAL(18,3);	
 			
 	-- 循环遍历	
-	DECLARE userlist CURSOR FOR SELECT agent.UserID,agent.ParentID,agent.ParentPath,agent.AgentLevel,agent.CurrentAmount,agent.TotalAmount,info.RegisterDate FROM xjaccountsdb.AccountsAgent agent INNER JOIN xjaccountsdb.AccountsInfo info ON info.UserID = agent.UserID WHERE agent.Nullity =0 ORDER BY agent.UserID ;-- LIMIT 0, 20;
+	DECLARE userlist CURSOR FOR SELECT agent.user_id,agent.parent_id,agent.parent_path,agent.agent_level,agent.current_amount,agent.total_amount,info.register_date FROM accounts_agent agent INNER JOIN accounts_info info ON info.user_id = agent.user_id WHERE agent.nullity =0 ORDER BY agent.user_id ;-- LIMIT 0, 20;
 	
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 		
 	-- 所有下级用户记录表
-	DROP TABLE IF  EXISTS ALLUserInfo;
-	CREATE TEMPORARY TABLE ALLUserInfo(  `UserID` int(11) NOT NULL, `ParentID` int(11) NOT NULL  )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS all_user_info;
+	CREATE TEMPORARY TABLE all_user_info(  `user_id` int(11) NOT NULL, `parent_id` int(11) NOT NULL  )ENGINE = InnoDB;
 	
 	-- 直属下级用户记录表
-	DROP TABLE IF  EXISTS DireUserInfo;
-	CREATE TEMPORARY TABLE DireUserInfo(  `UserID` int(11) NOT NULL )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS dire_user_info;
+	CREATE TEMPORARY TABLE dire_user_info(  `user_id` int(11) NOT NULL )ENGINE = InnoDB;
 	
 		-- 新增用户记录表
-	DROP TABLE IF  EXISTS NewUserInfo;
-	CREATE TEMPORARY TABLE NewUserInfo(  `UserID` int(11) NOT NULL )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS new_user_info;
+	CREATE TEMPORARY TABLE new_user_info(  `user_id` int(11) NOT NULL )ENGINE = InnoDB;
 	
 	-- 当日
-	SET paraBeginTime = CAST( NOW() AS date);
-	SET paraCurDateID = CAST( CAST( NOW() AS date) AS UNSIGNED );
+	SET para_begin_time = CAST( NOW() AS date);
+	SET par_cur_date_id = CAST( CAST( NOW() AS date) AS UNSIGNED );
 	-- 昨天
-	SET paraEndTime = ADDDATE(paraBeginTime, INTERVAL 1 DAY );
+	SET para_end_time = ADDDATE(para_begin_time, INTERVAL 1 DAY );
 	
 	-- TODO：后期，数据量（正式数据，顶层代理少）的情况下，可采取先遍历顶层代理，后从顶层代理子级倒叙向上统计数据
 	OPEN userlist;
 	REPEAT
-			FETCH userlist INTO curUserID,curParentID,curParentPath,curAgentLevel,curCurrentAmount,curTotalAmount,curRegisterDate;
+			FETCH userlist INTO cur_user_id,cur_parent_id,cur_parent_path,cur_agent_level,cur_current_amount,cur_total_amount,cur_register_date;
 			IF done != 1 THEN								
 								
 				-- 所有下级
-				INSERT INTO ALLUserInfo SELECT UserID,ParentID FROM  xjaccountsdb.AccountsAgent WHERE ParentID = curUserID OR  ParentPath like concat(  CONVERT(curUserID,CHAR(10)) ,',%') OR  ParentPath like concat('%,' , CONVERT(curUserID,CHAR(10)) ,',%');
+				INSERT INTO all_user_info SELECT user_id,parent_id FROM  accounts_agent WHERE parent_id = cur_user_id OR  parent_path like concat(  CONVERT(cur_user_id,CHAR(10)) ,',%') OR  parent_path like concat('%,' , CONVERT(cur_user_id,CHAR(10)) ,',%');
 				-- 直属下级
-				INSERT INTO DireUserInfo SELECT UserID FROM ALLUserInfo WHERE ParentID = curUserID;
+				INSERT INTO dire_user_info SELECT user_id FROM all_user_info WHERE parent_id = cur_user_id;
 				-- 当天新增用户
-				INSERT INTO NewUserInfo SELECT UserID FROM xjaccountsdb.AccountsInfo WHERE RegisterDate >= paraBeginTime AND RegisterDate < paraEndTime;
+				INSERT INTO new_user_info SELECT user_id FROM accounts_info WHERE register_date >= para_begin_time AND register_date < para_end_time;
 				
-				SELECT COUNT(1) INTO AllCount FROM ALLUserInfo;
-				SELECT COUNT(1) INTO DireCount FROM DireUserInfo;
+				SELECT COUNT(1) INTO all_count FROM all_user_info;
+				SELECT COUNT(1) INTO dire_count FROM dire_user_info;
 				
 				-- 新增人数
-				SELECT COUNT(1) INTO AllChildCount FROM ALLUserInfo alli INNER JOIN NewUserInfo new ON alli.UserID= new.UserID;	
-				SELECT COUNT(1) INTO DireChildCount FROM DireUserInfo dire INNER JOIN NewUserInfo new ON dire.UserID= new.UserID;
+				SELECT COUNT(1) INTO all_child_count FROM all_user_info alli INNER JOIN new_user_info new ON alli.user_id= new.user_id;	
+				SELECT COUNT(1) INTO dire_child_count FROM dire_user_info dire INNER JOIN new_user_info new ON dire.user_id= new.user_id;
 				
 				-- 用户流水、输赢金额
-				SELECT WaterScore,TotalScore INTO paraWaterScore,paraTotalScore FROM xjtreasuredb.StreamScoreInfo WHERE DateID = paraCurDateID AND UserID = curUserID;
+				SELECT water_score,total_score INTO para_water_score,para_total_score FROM stream_score_info WHERE date_id = par_cur_date_id AND user_id = cur_user_id;
 				SET done =0;
-				IF paraWaterScore IS NULL THEN
-					SET paraWaterScore =0;
-					SET paraTotalScore =0;
+				IF para_water_score IS NULL THEN
+					SET para_water_score =0;
+					SET para_total_score =0;
 				END IF;
 
 				-- 团队/直属流水、输赢金额
-				SELECT IFNULL(SUM(WaterScore),0),IFNULL(SUM(TotalScore),0) INTO paraAllWaterScore,paraAllTotalScore FROM xjtreasuredb.StreamScoreInfo WHERE DateID = paraCurDateID AND UserID IN (SELECT UserID FROM ALLUserInfo);
-				SELECT IFNULL(SUM(WaterScore),0),IFNULL(SUM(TotalScore),0) INTO paraDireWaterScore,paraDireTotalScore FROM xjtreasuredb.StreamScoreInfo WHERE DateID = paraCurDateID AND UserID IN (SELECT UserID FROM DireUserInfo);
+				SELECT IFNULL(SUM(water_score),0),IFNULL(SUM(total_score),0) INTO para_allwater_score,para_all_total_score FROM stream_score_info WHERE date_id = par_cur_date_id AND user_id IN (SELECT user_id FROM all_user_info);
+				SELECT IFNULL(SUM(water_score),0),IFNULL(SUM(total_score),0) INTO para_dire_water_score,para_dire_total_score FROM stream_score_info WHERE date_id = par_cur_date_id AND user_id IN (SELECT user_id FROM dire_user_info);
 				
 				-- 用户充值、兑换金额
-				SELECT IFNULL(SUM(PayAmount),0) INTO paraRecharge FROM xjtreasuredb.PaidOrderInfo WHERE PayDate >= paraBeginTime AND  PayDate < paraEndTime AND UserID = curUserID;	
-				SELECT IFNULL(SUM(Amount),0) INTO paraExchange FROM xjtreasuredb.RecordExchangeInfo WHERE ApplyDate >= paraBeginTime AND  ApplyDate < paraEndTime AND UserID = curUserID AND ApplyStatus=2;
+				SELECT IFNULL(SUM(pay_amount),0) INTO para_recharge FROM paid_order_info WHERE pay_date >= para_begin_time AND  pay_date < para_end_time AND user_id = cur_user_id;	
+				SELECT IFNULL(SUM(amount),0) INTO para_exchange FROM record_exchange_info WHERE apply_date >= para_begin_time AND  apply_date < para_end_time AND user_id = cur_user_id AND apply_status=2;
 				
 				-- 团队充值、兑换金额
-				SELECT IFNULL(SUM(PayAmount),0) INTO paraAllRecharge FROM xjtreasuredb.PaidOrderInfo WHERE PayDate >= paraBeginTime AND  PayDate < paraEndTime AND UserID IN (SELECT UserID FROM ALLUserInfo);
-				SELECT IFNULL(SUM(Amount),0) INTO paraAllExchange FROM xjtreasuredb.RecordExchangeInfo WHERE ApplyDate >= paraBeginTime AND  ApplyDate < paraEndTime AND ApplyStatus=2 AND UserID IN (SELECT UserID FROM ALLUserInfo);
+				SELECT IFNULL(SUM(pay_amount),0) INTO para_all_recharge FROM paid_order_info WHERE pay_date >= para_begin_time AND  pay_date < para_end_time AND user_id IN (SELECT user_id FROM all_user_info);
+				SELECT IFNULL(SUM(amount),0) INTO para_all_exchange FROM record_exchange_info WHERE apply_date >= para_begin_time AND  apply_date < para_end_time AND apply_status=2 AND user_id IN (SELECT user_id FROM all_user_info);
 				-- 直属充值、兑换金额
-				SELECT IFNULL(SUM(PayAmount),0) INTO paraDireRecharge FROM xjtreasuredb.PaidOrderInfo WHERE PayDate >= paraBeginTime AND  PayDate < paraEndTime AND UserID IN (SELECT UserID FROM DireUserInfo);
-				SELECT IFNULL(SUM(Amount),0) INTO paraDireExchange FROM xjtreasuredb.RecordExchangeInfo WHERE ApplyDate >= paraBeginTime AND  ApplyDate < paraEndTime AND ApplyStatus=2 AND UserID IN (SELECT UserID FROM DireUserInfo);
+				SELECT IFNULL(SUM(pay_amount),0) INTO para_dire_recharge FROM paid_order_info WHERE pay_date >= para_begin_time AND  pay_date < para_end_time AND user_id IN (SELECT user_id FROM dire_user_info);
+				SELECT IFNULL(SUM(amount),0) INTO para_dire_exchange FROM record_exchange_info WHERE apply_date >= para_begin_time AND  apply_date < para_end_time AND apply_status=2 AND user_id IN (SELECT user_id FROM dire_user_info);
 				
 				-- 用户佣金
-				SELECT RoyaltyAmount,DirePercentValue INTO paraAgentRoyalty,paraPercentValue FROM xjtreasuredb.AgentRoyaltyInfo WHERE DateID = paraCurDateID AND UserID = curUserID;
+				SELECT royalty_amount,dire_percent_value INTO para_agent_royalty,para_percent_value FROM agent_royalty_info WHERE date_id = par_cur_date_id AND user_id = cur_user_id;
 				SET done =0;
-				IF paraAgentRoyalty IS NULL THEN
-					SET paraAgentRoyalty =0;
-					SET paraPercentValue =0;
+				IF para_agent_royalty IS NULL THEN
+					SET para_agent_royalty =0;
+					SET para_percent_value =0;
 				END IF;
 				
 				-- 当天领取佣金
-				SELECT IFNULL(SUM(RoyaltyAmount),0) INTO paraGetAgentRoyalty FROM AgentRoyaltyTakeRecord WHERE TakeDate >= paraBeginTime AND  TakeDate < paraEndTime AND UserID = curUserID;
+				SELECT IFNULL(SUM(royalty_amount),0) INTO para_get_agent_royalty FROM agent_royalty_take_record WHERE take_date >= para_begin_time AND  take_date < para_end_time AND user_id = cur_user_id;
 				-- 所有未领取佣金
-				SELECT IFNULL(SUM(RoyaltyAmount),0) INTO paraNotAgentRoyalty FROM xjtreasuredb.AgentRoyaltyInfo WHERE UserID = curUserID AND State =0;
+				SELECT IFNULL(SUM(royalty_amount),0) INTO para_not_agent_royalty FROM agent_royalty_info WHERE user_id = cur_user_id AND State =0;
 				
 				
-				IF EXISTS(SELECT UserID FROM xjtreasuredb.AcountsAgentFullInfo WHERE UserID =curUserID AND DateID = paraCurDateID) THEN
-					 UPDATE xjtreasuredb.AcountsAgentFullInfo 
-					 SET TeamCount= AllCount, TeamWaterScore = paraWaterScore, TeamNewCount = AllChildCount, TeamScore = paraTotalScore,TeamRechargeAmount = paraAllRecharge,TeamExchangeAmount= paraAllExchange,DireCount = DireCount,DireWaterScore= paraDireWaterScore,DireNewCount = DireChildCount,DireScore = paraDireTotalScore,DireRechargeAmount= paraDireRecharge,DireExchangeAmount= paraDireExchange,UserWaterScore= paraWaterScore,UserScore = paraTotalScore, UserExchangeAmount = paraExchange,UserRechargeAmount = paraRecharge,UserNotTakeRoyalty = paraNotAgentRoyalty,UserSettleRoyalty =paraAgentRoyalty ,UserTakeRoyalty = paraGetAgentRoyalty,PercentValue = paraPercentValue,CurrentAmount= curCurrentAmount,TotalAmount = curTotalAmount,ParentID = curParentID,ParentPath = curParentPath
-					 WHERE  UserID =curUserID AND DateID = paraCurDateID;
+				IF EXISTS(SELECT user_id FROM acounts_agent_full_info WHERE user_id =cur_user_id AND date_id = par_cur_date_id) THEN
+					 UPDATE acounts_agent_full_info 
+					 SET team_count= all_count, teamwater_score = para_water_score, team_new_count = all_child_count, team_score = para_total_score,team_recharge_amount = para_all_recharge,team_exchange_amount= para_all_exchange,dire_count = dire_count,dire_water_score= para_dire_water_score,dire_new_count = dire_child_count,dire_score = para_dire_total_score,dire_recharge_amount= para_dire_recharge,dire_exchange_amount= para_dire_exchange,Userwater_score= para_water_score,user_score = para_total_score, user_exchange_amount = para_exchange,user_recharge_amount = para_recharge,user_not_take_royalty = para_not_agent_royalty,user_settle_royalty =para_agent_royalty ,user_take_royalty = para_get_agent_royalty,percent_value = para_percent_value,current_amount= cur_current_amount,total_amount = cur_total_amount,parent_id = cur_parent_id,parent_path = cur_parent_path
+					 WHERE  user_id =cur_user_id AND date_id = par_cur_date_id;
 	
 				ELSE
-					 INSERT xjtreasuredb.AcountsAgentFullInfo(DateID,UserID,TeamCount,TeamWaterScore,TeamNewCount,TeamScore,TeamRechargeAmount,TeamExchangeAmount,DireCount,DireWaterScore,DireNewCount,DireScore,DireRechargeAmount,DireExchangeAmount,UserWaterScore,UserScore,UserExchangeAmount,UserRechargeAmount,UserNotTakeRoyalty,UserSettleRoyalty,UserTakeRoyalty,PercentValue,CurrentAmount,TotalAmount,ParentID,ParentPath,AgentLevel,RegisterDate)
-					 VALUES(paraCurDateID,curUserID,AllCount,paraWaterScore,AllChildCount,paraTotalScore,paraAllRecharge,paraAllExchange,DireCount,paraDireWaterScore,DireChildCount,paraDireTotalScore,paraDireRecharge,paraDireExchange,paraWaterScore,paraTotalScore,paraExchange,paraRecharge,paraNotAgentRoyalty,paraAgentRoyalty,paraGetAgentRoyalty,paraPercentValue,curCurrentAmount,curTotalAmount,curParentID,curParentPath,curAgentLevel,curRegisterDate);
+					 INSERT acounts_agent_full_info(date_id,user_id,team_count,teamwater_score,team_new_count,team_score,team_recharge_amount,team_exchange_amount,dire_count,dire_water_score,dire_new_count,dire_score,dire_recharge_amount,dire_exchange_amount,Userwater_score,user_score,user_exchange_amount,user_recharge_amount,user_not_take_royalty,user_settle_royalty,user_take_royalty,percent_value,current_amount,total_amount,parent_id,parent_path,agent_level,register_date)
+					 VALUES(par_cur_date_id,cur_user_id,all_count,para_water_score,all_child_count,para_total_score,para_all_recharge,para_all_exchange,dire_count,para_dire_water_score,dire_child_count,para_dire_total_score,para_dire_recharge,para_dire_exchange,para_water_score,para_total_score,para_exchange,para_recharge,para_not_agent_royalty,para_agent_royalty,para_get_agent_royalty,para_percent_value,cur_current_amount,cur_total_amount,cur_parent_id,cur_parent_path,cur_agent_level,cur_register_date);
 				END IF;	
 			
-				DELETE FROM ALLUserInfo;
-				DELETE FROM DireUserInfo;
+				DELETE FROM all_user_info;
+				DELETE FROM dire_user_info;
 			END IF;
 			
 			UNTIL done END REPEAT;
@@ -2547,133 +2548,133 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_AddAccountInfo`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AddAccountInfo`(IN `strAccounts` varchar(32), IN `strNickName` varchar(32), IN `strLogonPass` varchar(32), IN `strInsurePass` varchar(32), IN `intFaceID` int, IN `strUnderWrite` varchar(250), IN `strIDCard` varchar(18), IN `strRealName` varchar(16), IN `intParentID` int, IN `intLevelNum` int, IN `strRegisterMobile` varchar(11), IN `tinGender` tinyint, IN `tinNullity` tinyint, IN `strRegisterIP` varchar(15), IN `intUserType` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AddAccountInfo`(IN `str_accounts` varchar(32), IN `str_nick_name` varchar(32), IN `str_logon_pass` varchar(32), IN `str_insure_pass` varchar(32), IN `int_face_id` int, IN `str_under_write` varchar(250), IN `str_id_card` varchar(18), IN `str_real_name` varchar(16), IN `int_parent_id` int, IN `int_level_num` int, IN `str_register_mobile` varchar(11), IN `tin_gender` tinyint, IN `tin_nullity` tinyint, IN `str_register_ip` varchar(15), IN `int_user_type` int)
     COMMENT '添加用户账户'
 exitpro:BEGIN
 	#Routine body goes here...
 	
 		-- 基本信息
-	DECLARE paraUserID INT;
-	DECLARE paraFaceID INT;
-	DECLARE paraAccounts VARCHAR(32);
-	DECLARE paraNickname VARCHAR(32);
-	DECLARE paraPassword VARCHAR(32);
-	DECLARE paraLevelNum INT;
-	DECLARE paraCodekey VARCHAR(10);
-	DECLARE paraDateID INT;
+	DECLARE para_user_id INT;
+	DECLARE para_face_id INT;
+	DECLARE para_accounts VARCHAR(32);
+	DECLARE para_nick_name VARCHAR(32);
+	DECLARE para_password VARCHAR(32);
+	DECLARE para_level_num INT;
+	DECLARE para_code_key VARCHAR(10);
+	DECLARE para_date_id INT;
 	
 	-- 财富变量
-	DECLARE paraGoldCoin DECIMAL(18,3);	-- 金币
-	DECLARE paraDiamond INT;	-- 钻石
+	DECLARE para_gold_coin DECIMAL(18,3);	-- 金币
+	DECLARE para_diamond INT;	-- 钻石
 	
-	DECLARE paraAgentID INT;
-	DECLARE paraAgentLevel INT;	
-	DECLARE paraParentPath VARCHAR(1000);
+	DECLARE para_agent_id INT;
+	DECLARE para_agent_level INT;	
+	DECLARE para_parent_path VARCHAR(1000);
 	
 	
 	-- 验证账号
-	IF strAccounts IS NULL OR strAccounts = '' THEN
-		SELECT 1 AS errorCode, '帐号已存在，请重新输入！！' AS errorMsg;	
+	IF str_accounts IS NULL OR str_accounts = '' THEN
+		SELECT 1 AS error_code, '帐号已存在，请重新输入！！' AS error_msg;	
 		LEAVE exitpro;
 	END IF;
 	
-	IF EXISTS (SELECT * FROM AccountsInfo WHERE Accounts= strAccounts) THEN
-		SELECT 1 AS errorCode, '帐号已存在，请重新输入！' AS errorMsg;
+	IF EXISTS (SELECT * FROM accounts_info WHERE accounts= str_accounts) THEN
+		SELECT 1 AS error_code, '帐号已存在，请重新输入！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
-	IF EXISTS (SELECT ConfineString FROM ConfineContent WHERE (EnjoinOverDate IS NULL  OR EnjoinOverDate >= NOW()) AND INSTR(ConfineString,strAccounts)>0) THEN
-		SELECT 1 AS errorCode,'您所输入的帐号名含有限制字符串!'	 AS errorMsg;
+	IF EXISTS (SELECT confine_string FROM confine_content WHERE (enjoin_over_date IS NULL  OR enjoin_over_date >= NOW()) AND INSTR(confine_string,str_accounts)>0) THEN
+		SELECT 1 AS error_code,'您所输入的帐号名含有限制字符串!'	 AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
-	IF strRegisterMobile <>'' THEN
+	IF str_register_mobile <>'' THEN
 		-- 查询手机号
-		IF EXISTS (SELECT UserID FROM AccountsInfo WHERE RegisterMobile=strRegisterMobile) THEN
-			SELECT 1 AS errorCode, '抱歉，此手机号码已被注册！'AS errorMsg;			
+		IF EXISTS (SELECT user_id FROM accounts_info WHERE register_mobile=str_register_mobile) THEN
+			SELECT 1 AS error_code, '抱歉，此手机号码已被注册！'AS error_msg;			
 			LEAVE exitpro;
 		END IF;	
 	END IF;	
 		
-	IF NOT EXISTS (SELECT * FROM AccountsLevel WHERE LevelNum= intLevelNum) THEN
-		SELECT 1 AS errorCode, '用户层级不存在，请重新选择！' AS errorMsg;
+	IF NOT EXISTS (SELECT * FROM accounts_level WHERE level_num= int_level_num) THEN
+		SELECT 1 AS error_code, '用户层级不存在，请重新选择！' AS error_msg;
 		LEAVE exitpro;
 	END IF;
 	
-	IF strIDCard <>'' THEN
+	IF str_id_card <>'' THEN
 		-- 查询手机号
-		IF EXISTS (SELECT UserID FROM AccountsInfo WHERE IDCard=strIDCard) THEN
-			SELECT 1 AS errorCode, '抱歉，此身份证号码已被注册！'AS errorMsg;			
+		IF EXISTS (SELECT user_id FROM accounts_info WHERE id_card=str_id_card) THEN
+			SELECT 1 AS error_code, '抱歉，此身份证号码已被注册！'AS error_msg;			
 			LEAVE exitpro;
 		END IF;	
 	END IF;	
 	
 	-- 昵称赋值
-	IF strNickName IS NULL OR strNickName = '' THEN
-		SET strNickName = strAccounts;
+	IF str_nick_name IS NULL OR str_nick_name = '' THEN
+		SET str_nick_name = str_accounts;
 	END IF;
 	
 	-- 查代理
-	IF intParentID<>0 THEN
+	IF int_parent_id<>0 THEN
 		-- 查代理
-		SELECT  AgentLevel + 1, UserID,  ParentPath INTO paraAgentLevel,paraAgentID, paraParentPath FROM AccountsAgent WHERE  UserID=intParentID;
+		SELECT  agent_level + 1, user_id,  parent_path INTO para_agent_level,para_agent_id, para_parent_path FROM accounts_agent WHERE  user_id=int_parent_id;
 
 		-- 结果处理
-		IF paraAgentID IS NULL THEN
-			SELECT 3 AS errorCode, '您所填写的推荐人不存在或者填写错误，请检查后再次注册！'AS errorMsg;	
+		IF para_agent_id IS NULL THEN
+			SELECT 3 AS error_code, '您所填写的推荐人不存在或者填写错误，请检查后再次注册！'AS error_msg;	
 			LEAVE exitpro;
 		END IF;
 		
 		-- 更新上级的子级数量
 		-- 直属父级
-		UPDATE xjaccountsdb.AccountsAgent SET AllChildCount = AllChildCount + 1,DireChildCount = DireChildCount + 1 WHERE UserID =numAgentID;		
+		UPDATE accounts_agent SET all_child_count = all_child_count + 1,dire_child_count = dire_child_count + 1 WHERE user_id =numagent_id;		
 		-- 间接父级
-		UPDATE xjaccountsdb.AccountsAgent SET AllChildCount = AllChildCount + 1 WHERE UserID IN(
-		SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(paraParentPath,',',help_topic_id+1),',',-1) AS num 
-		FROM 	mysql.help_topic 	WHERE help_topic_id < LENGTH(paraParentPath)-LENGTH(REPLACE(paraParentPath,',','')) + 1 -- 包含最后一个
+		UPDATE accounts_agent SET all_child_count = all_child_count + 1 WHERE user_id IN(
+		SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(para_parent_path,',',help_topic_id+1),',',-1) AS num 
+		FROM 	mysql.help_topic 	WHERE help_topic_id < LENGTH(para_parent_path)-LENGTH(REPLACE(para_parent_path,',','')) + 1 -- 包含最后一个
 		);
 
-		IF paraAgentLevel = 1 THEN
-			SET paraParentPath = CONVERT(intParentID,CHAR(5));
+		IF para_agent_level = 1 THEN
+			SET para_parent_path = CONVERT(int_parent_id,CHAR(5));
 		ELSE
-			SET paraParentPath = CONCAT(paraParentPath , ',' , CONVERT(intParentID,CHAR(5)));
+			SET para_parent_path = CONCAT(para_parent_path , ',' , CONVERT(int_parent_id,CHAR(5)));
 		END IF;
 	ELSE
-		SET intParentID=0;
-		SET paraAgentLevel=0;
-		SET paraParentPath ='';
+		SET int_parent_id=0;
+		SET para_agent_level=0;
+		SET para_parent_path ='';
 	END IF;	
 	
 	
-	SET paraCodekey = LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),10);
-	SET paraPassword = md5( CONCAT(strLogonPass, paraCodekey ));	
+	SET para_code_key = LEFT(CONVERT(REPLACE(UUID(),'-',''),CHAR(32)),10);
+	SET para_password = md5( CONCAT(str_logon_pass, para_code_key ));	
 	
-	IF strInsurePass = '' THEN
-		SET strInsurePass = paraPassword;	
+	IF str_insure_pass = '' THEN
+		SET str_insure_pass = para_password;	
 	ELSE
-		 SET strInsurePass = md5( CONCAT(strLogonPass, paraCodekey ));		
+		 SET str_insure_pass = md5( CONCAT(str_logon_pass, para_code_key ));		
 	END IF;
 	
 	
 	-- 数据调整
-		SET paraGoldCoin=0; 
-		SET paraDiamond=0; 
+		SET para_gold_coin=0; 
+		SET para_diamond=0; 
 		
 	-- 注册用户
-	INSERT AccountsInfo (Accounts,Nickname,LogonPass,InsurePass,RealName,IDCard, Gender,Nullity,UserType, FaceID,RegisterIP,LastLogonIP,LastLogonDate,LevelNum,RegisterMobile,CodeKey,PlatformID,UnderWrite)
-	VALUES(strAccounts,strNickName,paraPassword,strInsurePass,strRealName,strIDCard, tinGender,intUserType,tinNullity,intFaceID,strRegisterIP,strRegisterIP,NOW(),intLevelNum,strRegisterMobile,paraCodekey,1,strUnderWrite);
+	INSERT accounts_info (accounts,nick_name,logon_pass,insure_pass,real_name,id_card, gender,nullity,user_type, face_id,register_ip,last_logon_ip,last_logon_date,level_num,register_mobile,code_key,platform_id,under_write)
+	VALUES(str_accounts,str_nick_name,para_password,str_insure_pass,str_real_name,str_id_card, tin_gender,int_user_type,tin_nullity,int_face_id,str_register_ip,str_register_ip,NOW(),int_level_num,str_register_mobile,para_code_key,1,str_under_write);
 	
 	-- 查询用户
-	SELECT UserID	INTO paraUserID	FROM AccountsInfo WHERE Accounts=strAccounts;
+	SELECT user_id	INTO para_user_id	FROM accounts_info WHERE accounts=str_accounts;
 	
 	-- 人物形象
-	INSERT AccountsImage(UserID)VALUES(paraUserID);
+	INSERT accounts_image(user_id)VALUES(para_user_id);
 	
 	-- 插入资料
-	INSERT xjtreasuredb.GameScoreInfo(UserID, GoldCoin, Diamond) VALUES (paraUserID, 0,0);
+	INSERT game_score_info(user_id, gold_coin, diamond) VALUES (para_user_id, 0,0);
 
 	-- 代理信息
-	INSERT AccountsAgent(UserID,ParentID,AgentLevel,ParentPath)VALUES(paraUserID,intParentID,paraAgentLevel,paraParentPath);	
+	INSERT accounts_agent(user_id,parent_id,agent_level,parent_path)VALUES(para_user_id,int_parent_id,para_agent_level,para_parent_path);	
 	
 	-- TODO：注册赠送等
 	
@@ -2681,16 +2682,16 @@ exitpro:BEGIN
 	-- ---------------
 	
 		-- 日期
-		SET paraDateID = CAST(CAST(NOW() AS date) AS UNSIGNED);
+		SET para_date_id = CAST(CAST(NOW() AS date) AS UNSIGNED);
 		-- 记录日志
-		UPDATE SystemStreamInfo SET GameRegisterSuccess=GameRegisterSuccess+1 WHERE DateID=paraDateID;
+		UPDATE system_stream_info SET game_register_success=game_register_success+1 WHERE date_id=para_date_id;
 		IF ROW_COUNT()=0 THEN
-			INSERT SystemStreamInfo (DateID, GameRegisterSuccess,CollectDate) VALUES (paraDateID, 1,NOW());
+			INSERT system_stream_info (date_id, game_register_success,collect_date) VALUES (para_date_id, 1,NOW());
 		END IF;
 		
 		-- 输出变量
-		SELECT 0 AS errorCode, '注册成功' AS errorMsg;
-		SELECT  paraUserID AS UserID, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamond;		
+		SELECT 0 AS error_code, '注册成功' AS error_msg;
+		SELECT  para_user_id AS user_id, para_gold_coin AS user_gold, para_diamond  AS user_diamond;		
 
 END
 ;;
@@ -2701,68 +2702,68 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_AgentStatistics`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AgentStatistics`(IN `dateSearch` datetime)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AgentStatistics`(IN `date_search` datetime)
     COMMENT '无限代统计'
 BEGIN
 	#Routine body goes here...
 	
 		-- 游戏信息
-	DECLARE	TotalWaterScore	DECIMAL(18,3);			-- 当日游戏流水
-	DECLARE	SettleWaterScore	DECIMAL(22,3);		-- 当日结算流水
-	DECLARE	SettleRoyaltyAmount	DECIMAL(22,3);	-- 当日结算佣金
-	DECLARE	GetRoyaltyAmount	DECIMAL(22,3);		-- 当天领取佣金
-	DECLARE	NoGetRoyaltyAmount	DECIMAL(22,3);	-- 昨日未领取佣金	
-	DECLARE	NoGetTotalRoyaltyAmount	DECIMAL(22,3);	-- 未领取总佣金	
+	DECLARE	total_water_score	DECIMAL(18,3);			-- 当日游戏流水
+	DECLARE	settle_water_score	DECIMAL(22,3);		-- 当日结算流水
+	DECLARE	settle_royalty_amount	DECIMAL(22,3);	-- 当日结算佣金
+	DECLARE	get_royalty_amount	DECIMAL(22,3);		-- 当天领取佣金
+	DECLARE	no_get_royalty_amount	DECIMAL(22,3);	-- 昨日未领取佣金	
+	DECLARE	no_get_total_royalty_amount	DECIMAL(22,3);	-- 未领取总佣金	
 	
 	-- 注册信息
-	DECLARE RegUserTotalCount INT;					-- 注册总代理数
-	DECLARE RegUserParentCount INT;					-- 注册总顶层代理数
-	DECLARE DayRegUserTotalCount INT;				-- 当天注册代理数
-	DECLARE DayRegUserParentCount INT;			-- 当天注册顶层代理数	
+	DECLARE reg_user_total_count INT;					-- 注册总代理数
+	DECLARE reg_user_parent_count INT;					-- 注册总顶层代理数
+	DECLARE day_reg_user_total_count INT;				-- 当天注册代理数
+	DECLARE day_reg_user_parent_count INT;			-- 当天注册顶层代理数	
 	
 	-- 当天时间	
-	DECLARE EndTime DATETIME;		
-	DECLARE CurDate INT;	
-	DECLARE YesterdayDate INT;
-	SET EndTime = DATE_SUB(dateSearch, INTERVAL -1 DAY);		-- DATE_SUB减去时间
+	DECLARE end_time DATETIME;		
+	DECLARE cur_date INT;	
+	DECLARE yesterday_date INT;
+	SET end_time = DATE_SUB(date_search, INTERVAL -1 DAY);		-- DATE_SUB减去时间
 	-- 当日日期值
-	SET CurDate = CAST(CAST(dateSearch AS date) AS UNSIGNED); 
-	SET YesterdayDate = CAST(CAST(DATE_SUB(dateSearch, INTERVAL 1 DAY) AS date) AS UNSIGNED); 
+	SET cur_date = CAST(CAST(date_search AS date) AS UNSIGNED); 
+	SET yesterday_date = CAST(CAST(DATE_SUB(date_search, INTERVAL 1 DAY) AS date) AS UNSIGNED); 
 	
 	
 	-- 用户ID记录临时表
-	DROP TABLE if  EXISTS TEMPUSERID;
-	Create TEMPORARY table TEMPUSERID(  `UserID` int(11) NOT NULL  )ENGINE = InnoDB;
+	DROP TABLE if  EXISTS temp_user_id;
+	Create TEMPORARY table temp_user_id(  `user_id` int(11) NOT NULL  )ENGINE = InnoDB;
 	
 	-- 总代理
-	SELECT COUNT(info.UserID) INTO RegUserTotalCount FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID;
+	SELECT COUNT(info.user_id) INTO reg_user_total_count FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id;
 	-- 总顶层代理
-  INSERT TEMPUSERID	SELECT info.UserID FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE agent.ParentID =0;
+  INSERT temp_user_id	SELECT info.user_id FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE agent.parent_id =0;
 	-- 总顶层代理人数
-	SELECT COUNT(UserID) INTO RegUserParentCount FROM TEMPUSERID;
+	SELECT COUNT(user_id) INTO reg_user_parent_count FROM temp_user_id;
 	
 	-- 当天新增代理
-	SELECT COUNT(info.UserID) INTO DayRegUserTotalCount FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE info.RegisterDate >= dateSearch AND info.RegisterDate < EndTime;
+	SELECT COUNT(info.user_id) INTO day_reg_user_total_count FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE info.register_date >= date_search AND info.register_date < end_time;
 	-- 当天新增顶层代理
-	SELECT COUNT(info.UserID) INTO DayRegUserParentCount FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE info.RegisterDate >= dateSearch AND info.RegisterDate < EndTime AND agent.ParentID =0;
+	SELECT COUNT(info.user_id) INTO day_reg_user_parent_count FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE info.register_date >= date_search AND info.register_date < end_time AND agent.parent_id =0;
 	
 	
 	-- 游戏信息
 	-- 当天游戏流水
-	SELECT IFNULL(SUM(WaterScore),0) INTO TotalWaterScore  FROM xjtreasuredb.StreamScoreInfo WHERE FirstCollectDate >= dateSearch AND LastCollectDate < EndTime;
+	SELECT IFNULL(SUM(water_score),0) INTO total_water_score  FROM stream_score_info WHERE first_collect_date >= date_search AND last_collect_date < end_time;
 	-- 当日结算流水、佣金
-	SELECT IFNULL(SUM(TotalAmount),0), IFNULL(SUM(TotalRoyaltyAmount),0) INTO SettleWaterScore,SettleRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyRecord WHERE DateID = CurDate;
+	SELECT IFNULL(SUM(total_amount),0), IFNULL(SUM(total_royalty_amount),0) INTO settle_water_score,settle_royalty_amount  FROM agent_royalty_record WHERE date_id = cur_date;
 	-- 当天领取佣金
-	SELECT IFNULL(SUM(RoyaltyAmount),0) INTO GetRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyTakeRecord WHERE TakeDate >= dateSearch AND TakeDate < EndTime;
+	SELECT IFNULL(SUM(royalty_amount),0) INTO get_royalty_amount  FROM agent_royalty_take_record WHERE take_date >= date_search AND take_date < end_time;
 	-- 昨日未领取佣金
-	SELECT IFNULL(SUM(RoyaltyAmount),0) INTO NoGetRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyLog WHERE State =0 AND DateID = YesterdayDate;
+	SELECT IFNULL(SUM(royalty_amount),0) INTO no_get_royalty_amount  FROM agent_royalty_log WHERE state =0 AND date_id = yesterday_date;
 	-- 未领取总佣金
-	SELECT IFNULL(SUM(RoyaltyAmount),0) INTO NoGetTotalRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyLog WHERE State =0;		
+	SELECT IFNULL(SUM(royalty_amount),0) INTO no_get_total_royalty_amount  FROM agent_royalty_log WHERE state =0;		
 		
-	SELECT TotalWaterScore AS TotalWaterScore, SettleWaterScore AS SettleWaterScore, SettleRoyaltyAmount AS SettleRoyaltyAmount, GetRoyaltyAmount AS GetRoyaltyAmount, NoGetRoyaltyAmount AS NoGetRoyaltyAmount, NoGetTotalRoyaltyAmount AS NoGetTotalRoyaltyAmount, RegUserTotalCount AS RegUserTotalCount, RegUserParentCount AS RegUserParentCount, DayRegUserTotalCount AS DayRegUserTotalCount, DayRegUserParentCount AS DayRegUserParentCount;
+	SELECT total_water_score AS total_water_score, settle_water_score AS settle_water_score, settle_royalty_amount AS settle_royalty_amount, get_royalty_amount AS get_royalty_amount, no_get_royalty_amount AS no_get_royalty_amount, no_get_total_royalty_amount AS no_get_total_royalty_amount, reg_user_total_count AS reg_user_total_count, reg_user_parent_count AS reg_user_parent_count, day_reg_user_total_count AS day_reg_user_total_count, day_reg_user_parent_count AS day_reg_user_parent_count;
 	
 	-- 当日顶层代理返佣情况
-	SELECT SUM(ainfo.DirePercentValue) AS PercentValue, SUM(ainfo.DireSettleAmount + ainfo.IntdireSettleAmount) AS SettleAmount, SUM(ainfo.RoyaltyAmount) AS RoyaltyAmount, COUNT(1) AS Counts FROM xjtreasuredb.AgentRoyaltyLog ainfo INNER JOIN TEMPUSERID temp ON ainfo.UserID = temp.UserID  WHERE State =0 AND DateID = CurDate GROUP BY DirePercentValue;	
+	SELECT SUM(ainfo.dire_percent_value) AS PercentValue, SUM(ainfo.dire_settle_amount + ainfo.Intdire_settle_amount) AS settle_amount, SUM(ainfo.royalty_amount) AS royalty_amount, COUNT(1) AS Counts FROM agent_royalty_log ainfo INNER JOIN temp_user_id temp ON ainfo.user_id = temp.user_id  WHERE state =0 AND date_id = cur_date GROUP BY dire_percent_value;	
 	
 
 END
@@ -2774,141 +2775,141 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_AnalModularData`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AnalModularData`(IN `intUserType` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_AnalModularData`(IN `int_user_type` int)
     COMMENT '获取首页相关数据'
 BEGIN
 	#Routine body goes here...
 	
 	-- 充值信息
-	DECLARE DayRechargeCount INT;							-- 当天充值总笔数
-	DECLARE DayRechargeAmount DECIMAL(18,3);	-- 当天充值总额
-	DECLARE RechargeTotalAmount DECIMAL(22,3);-- 充值总金额
-	DECLARE RechargeMoreCount INT;						-- 充值大于1次人数
-	DECLARE RechargeFirstCount INT;						-- 首充人数
-	DECLARE DayRechargeMaxAmount DECIMAL(18,3);	-- 今日充值最多金额
+	DECLARE day_recharge_count INT;							-- 当天充值总笔数
+	DECLARE day_recharge_amount DECIMAL(18,3);	-- 当天充值总额
+	DECLARE recharge_total_amount DECIMAL(22,3);-- 充值总金额
+	DECLARE recharge_more_count INT;						-- 充值大于1次人数
+	DECLARE recharge_first_count INT;						-- 首充人数
+	DECLARE day_recharge_max_amount DECIMAL(18,3);	-- 今日充值最多金额
 	
 	-- 注册信息
-	DECLARE DayRegUserCount INT;					-- 当天注册用户数		
-	DECLARE RegTotalCount INT;						-- 注册总数
-	DECLARE MaxUserRegCount INT;					-- 日注册最高值	
-	DECLARE ParentUserRegCount INT;				-- 顶层用户注册数
+	DECLARE day_reg_user_count INT;					-- 当天注册用户数		
+	DECLARE reg_total_count INT;						-- 注册总数
+	DECLARE max_user_reg_count INT;					-- 日注册最高值	
+	DECLARE parent_user_reg_count INT;				-- 顶层用户注册数
 	
 	-- 在线信息
-	DECLARE	OnlineCount INT;							-- 在线会员数
+	DECLARE	online_count INT;							-- 在线会员数
 	
 	-- 绑卡
-	DECLARE	DayOutCount INT;								-- 当天出款笔数
+	DECLARE	day_out_count INT;								-- 当天出款笔数
 	
 	-- 出款信息
-	DECLARE	NewExchangeAccount INT;					-- 当天新增绑卡
-	DECLARE	DayTotalOutAmount DECIMAL(18,3);-- 当天出款总额
-	DECLARE	TotalOutAmount DECIMAL(18,3);		-- 出款总额
+	DECLARE	new_exchange_account INT;					-- 当天新增绑卡
+	DECLARE	day_total_out_amount DECIMAL(18,3);-- 当天出款总额
+	DECLARE	total_out_amount DECIMAL(18,3);		-- 出款总额
 	
 	-- 游戏信息
-	DECLARE	TotalWaterScore	DECIMAL(18,3);			-- 当日游戏流水
-	DECLARE	TotalUserScore	DECIMAL(18,3);			-- 当日用户游戏输赢
+	DECLARE	total_water_score	DECIMAL(18,3);			-- 当日游戏流水
+	DECLARE	total_user_score	DECIMAL(18,3);			-- 当日用户游戏输赢
 	
-	DECLARE	SettleWaterScore	DECIMAL(22,3);		-- 昨日结算流水
-	DECLARE	SettleRoyaltyAmount	DECIMAL(22,3);	-- 昨日结算佣金
-	DECLARE	GetRoyaltyAmount	DECIMAL(22,3);		-- 当天领取佣金
-	DECLARE	NoGetRoyaltyAmount	DECIMAL(22,3);	-- 昨日未领取佣金	
+	DECLARE	settle_water_score	DECIMAL(22,3);		-- 昨日结算流水
+	DECLARE	settle_royalty_amount	DECIMAL(22,3);	-- 昨日结算佣金
+	DECLARE	get_royalty_amount	DECIMAL(22,3);		-- 当天领取佣金
+	DECLARE	no_get_royalty_amount	DECIMAL(22,3);	-- 昨日未领取佣金	
 	
 	-- 钻石赠送
-	DECLARE	SendAmount	DECIMAL(22,3);					-- 赠送钻石	
+	DECLARE	send_amount	DECIMAL(22,3);					-- 赠送钻石	
 	
 	-- 订单信息
-	DECLARE DayOffLineOrder INT;					-- 待处理线下充值订单		
-	DECLARE DayExchangeOrder INT;					-- 待处理兑换订单
+	DECLARE day_offLine_order INT;					-- 待处理线下充值订单		
+	DECLARE day_exchange_order INT;					-- 待处理兑换订单
 	
 	-- 当天时间
-	DECLARE BeginTime DATETIME;
-	DECLARE EndTime DATETIME;	
-	DECLARE YesterdayDate INT;	
-	SET BeginTime = CURDATE();
-	SET EndTime = DATE_SUB(BeginTime, INTERVAL -1 DAY);		-- DATE_SUB减去时间
-	SET YesterdayDate = CAST(CAST(DATE_SUB(BeginTime, INTERVAL 1 DAY) AS date) AS UNSIGNED); 
+	DECLARE begin_time DATETIME;
+	DECLARE end_time DATETIME;	
+	DECLARE yesterday_date INT;	
+	SET begin_time = CURDATE();
+	SET end_time = DATE_SUB(begin_time, INTERVAL -1 DAY);		-- DATE_SUB减去时间
+	SET yesterday_date = CAST(CAST(DATE_SUB(begin_time, INTERVAL 1 DAY) AS date) AS UNSIGNED); 
 	
 	-- 直属下级用户记录表
-	DROP TABLE IF  EXISTS AllUserTable;
-	CREATE TEMPORARY TABLE AllUserTable(  `UserID` int(11) NOT NULL )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS all_user_table;
+	CREATE TEMPORARY TABLE all_user_table(  `user_id` int(11) NOT NULL )ENGINE = InnoDB;
 	
-	IF intUserType = -1 THEN	-- 全部数据
-		INSERT INTO AllUserTable SELECT UserID FROM xjaccountsdb.AccountsInfo;
+	IF int_user_type = -1 THEN	-- 全部数据
+		INSERT INTO all_user_table SELECT user_id FROM accounts_info;
 			 
 		-- 注册 -------------
 		-- 当天注册用户数
-		SELECT COUNT(UserID) INTO DayRegUserCount FROM xjaccountsdb.AccountsInfo WHERE RegisterDate>=BeginTime AND RegisterDate< EndTime;
+		SELECT COUNT(user_id) INTO day_reg_user_count FROM accounts_info WHERE register_date>=begin_time AND register_date< end_time;
 		-- 当天顶级用户数量
-		SELECT COUNT(info.UserID) INTO ParentUserRegCount FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID 
-		WHERE info.RegisterDate >= BeginTime AND info.RegisterDate< EndTime AND agent.ParentID =0;
+		SELECT COUNT(info.user_id) INTO parent_user_reg_count FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id 
+		WHERE info.register_date >= begin_time AND info.register_date< end_time AND agent.parent_id =0;
 		
 		-- 总注册
-		SELECT COUNT(UserID) INTO RegTotalCount FROM xjaccountsdb.AccountsInfo;
+		SELECT COUNT(user_id) INTO reg_total_count FROM accounts_info;
 	ELSE
-		INSERT INTO AllUserTable SELECT UserID FROM xjaccountsdb.AccountsInfo  WHERE UserType = intUserType;
+		INSERT INTO all_user_table SELECT user_id FROM accounts_info  WHERE user_type = int_user_type;
 		
 		-- 注册 -------------
 		-- 当天注册用户数
-		SELECT COUNT(UserID) INTO DayRegUserCount FROM xjaccountsdb.AccountsInfo WHERE UserType = intUserType AND RegisterDate>=BeginTime AND RegisterDate< EndTime;
+		SELECT COUNT(user_id) INTO day_reg_user_count FROM accounts_info WHERE user_type = int_user_type AND register_date>=begin_time AND register_date< end_time;
 		-- 当天顶级用户数量
-		SELECT COUNT(info.UserID) INTO ParentUserRegCount FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID 
-		WHERE info.UserType = intUserType AND info.RegisterDate >= BeginTime AND info.RegisterDate< EndTime AND agent.ParentID =0;		
+		SELECT COUNT(info.user_id) INTO parent_user_reg_count FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id 
+		WHERE info.user_type = int_user_type AND info.register_date >= begin_time AND info.register_date< end_time AND agent.parent_id =0;		
 		-- 总注册
-		SELECT COUNT(UserID) INTO RegTotalCount FROM xjaccountsdb.AccountsInfo WHERE  UserType = intUserType;
+		SELECT COUNT(user_id) INTO reg_total_count FROM accounts_info WHERE  user_type = int_user_type;
 	END IF;
 	
 	-- 充值 ----------
-	SELECT  IFNULL(SUM(PayAmount),0), COUNT(*),IFNULL(MAX(PayAmount),0) INTO DayRechargeAmount,DayRechargeCount,DayRechargeMaxAmount FROM xjtreasuredb.PaidOrderInfo
-	WHERE UserID IN (SELECT UserID FROM AllUserTable) AND PayDate>=BeginTime AND PayDate< EndTime;
+	SELECT  IFNULL(SUM(pay_amount),0), COUNT(*),IFNULL(MAX(pay_amount),0) INTO day_recharge_amount,day_recharge_count,day_recharge_max_amount FROM paid_order_info
+	WHERE user_id IN (SELECT user_id FROM all_user_table) AND pay_date>=begin_time AND pay_date< end_time;
 	-- 总充值金额
-	SELECT  IFNULL(SUM(PayAmount),0) INTO RechargeTotalAmount FROM xjtreasuredb.PaidOrderInfo WHERE  UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT  IFNULL(SUM(pay_amount),0) INTO recharge_total_amount FROM paid_order_info WHERE  user_id IN (SELECT user_id FROM all_user_table);
 	
 	-- 首充玩家	
-	SELECT COUNT(1) INTO RechargeFirstCount FROM xjtreasuredb.PaidOrderInfo orders INNER JOIN (SELECT UserID,COUNT(UserID) AS Total FROM xjtreasuredb.PaidOrderInfo WHERE UserID IN (SELECT UserID FROM AllUserTable) GROUP BY UserID) A ON orders.UserID = A.UserID WHERE A.Total < 2 AND orders.PayDate>=BeginTime AND orders.PayDate< EndTime;	
+	SELECT COUNT(1) INTO recharge_first_count FROM paid_order_info orders INNER JOIN (SELECT user_id,COUNT(user_id) AS total FROM paid_order_info WHERE user_id IN (SELECT user_id FROM all_user_table) GROUP BY user_id) A ON orders.user_id = A.user_id WHERE A.total < 2 AND orders.pay_date>=begin_time AND orders.pay_date< end_time;	
 	-- 二次充值玩家
-	SELECT COUNT(Total)  INTO RechargeMoreCount	FROM (SELECT COUNT(UserID) AS Total FROM xjtreasuredb.PaidOrderInfo WHERE UserID IN (SELECT UserID FROM AllUserTable) AND PayDate>=BeginTime AND PayDate< EndTime GROUP BY UserID) A WHERE Total>1;
+	SELECT COUNT(total)  INTO recharge_more_count	FROM (SELECT COUNT(user_id) AS total FROM paid_order_info WHERE user_id IN (SELECT user_id FROM all_user_table) AND pay_date>=begin_time AND pay_date< end_time GROUP BY user_id) A WHERE total>1;
 	
 	-- 在线用户数量--
-	SELECT COUNT(*) INTO OnlineCount FROM xjaccountsdb.AccountPlayingLock WHERE UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT COUNT(*) INTO online_count FROM account_playing_lock WHERE user_id IN (SELECT user_id FROM all_user_table);
 	
 	-- 新增绑卡数量
-	SELECT COUNT(1) INTO NewExchangeAccount FROM xjaccountsdb.ExchangeAccount exchange INNER JOIN AllUserTable allt ON exchange.UserID = allt.UserID
-	WHERE exchange.CreateDate >= BeginTime AND exchange.CreateDate < EndTime;
+	SELECT COUNT(1) INTO new_exchange_account FROM exchange_account exchange INNER JOIN all_user_table allt ON exchange.user_id = allt.user_id
+	WHERE exchange.create_date >= begin_time AND exchange.create_date < end_time;
 	
 	-- 出款信息
 	-- 今日出款总额、笔数
-	SELECT IFNULL(SUM(Amount),0), COUNT(1) INTO DayTotalOutAmount,DayOutCount FROM xjtreasuredb.RecordExchangeInfo
-	WHERE ApplyStatus =2 AND  UserID IN (SELECT UserID FROM AllUserTable) AND HandlerDate>=BeginTime AND HandlerDate< EndTime;
+	SELECT IFNULL(SUM(amount),0), COUNT(1) INTO day_total_out_amount,day_out_count FROM record_exchange_info
+	WHERE apply_status =2 AND  user_id IN (SELECT user_id FROM all_user_table) AND handler_date>=begin_time AND handler_date< end_time;
 	-- 平台兑换总额
-	SELECT IFNULL(SUM(Amount),0) INTO TotalOutAmount FROM xjtreasuredb.RecordExchangeInfo WHERE ApplyStatus =2 AND  UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT IFNULL(SUM(amount),0) INTO total_out_amount FROM record_exchange_info WHERE apply_status =2 AND  user_id IN (SELECT user_id FROM all_user_table);
 	
 	-- 游戏信息
 	-- 当天游戏流水
-	SELECT IFNULL(SUM(WaterScore),0) INTO TotalWaterScore  FROM xjtreasuredb.StreamScoreInfo 
-	WHERE  UserID IN (SELECT UserID FROM AllUserTable) AND FirstCollectDate >= BeginTime AND LastCollectDate < EndTime;
+	SELECT IFNULL(SUM(water_score),0) INTO total_water_score  FROM stream_score_info 
+	WHERE  user_id IN (SELECT user_id FROM all_user_table) AND first_collect_date >= begin_time AND last_collect_date < end_time;
 	-- 当天用户游戏输赢
-	SELECT IFNULL(SUM(TotalScore),0) INTO TotalUserScore  FROM xjtreasuredb.StreamScoreInfo 
-	WHERE  UserID IN (SELECT UserID FROM AllUserTable) AND FirstCollectDate >= BeginTime AND LastCollectDate < EndTime;
+	SELECT IFNULL(SUM(total_score),0) INTO total_user_score  FROM stream_score_info 
+	WHERE  user_id IN (SELECT user_id FROM all_user_table) AND first_collect_date >= begin_time AND last_collect_date < end_time;
 	
 	-- 昨日结算流水
-	SELECT IFNULL(SUM(TeamWaterScore),0), IFNULL(SUM(RoyaltyAmount),0) INTO SettleWaterScore,SettleRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyLog WHERE DateID = YesterdayDate AND  UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT IFNULL(SUM(team_water_score),0), IFNULL(SUM(royalty_amount),0) INTO settle_water_score,settle_royalty_amount  FROM agent_royalty_log WHERE date_id = yesterday_date AND  user_id IN (SELECT user_id FROM all_user_table);
 	-- 当天领取佣金
-	SELECT IFNULL(SUM(RoyaltyAmount),0) INTO GetRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyTakeRecord WHERE  UserID IN (SELECT UserID FROM AllUserTable) AND TakeDate >= BeginTime AND TakeDate < EndTime;
+	SELECT IFNULL(SUM(royalty_amount),0) INTO get_royalty_amount  FROM agent_royalty_take_record WHERE  user_id IN (SELECT user_id FROM all_user_table) AND take_date >= begin_time AND take_date < end_time;
 	-- 昨日未领取佣金
-	SELECT IFNULL(SUM(RoyaltyAmount),0) INTO NoGetRoyaltyAmount  FROM xjtreasuredb.AgentRoyaltyLog WHERE State =0 AND  UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT IFNULL(SUM(royalty_amount),0) INTO no_get_royalty_amount  FROM agent_royalty_log WHERE State =0 AND  user_id IN (SELECT user_id FROM all_user_table);
 	
 	-- 赠送钻石
-	SELECT IFNULL(SUM(CapitalAmount),0) INTO SendAmount  FROM xjtreasuredb.GameDiamondChangeLog 
-	WHERE LogDate >= BeginTime AND LogDate < EndTime AND CapitalTypeID = 4 OR CapitalTypeID = 6  AND  UserID IN (SELECT UserID FROM AllUserTable);
+	SELECT IFNULL(SUM(capital_amount),0) INTO send_amount  FROM game_diamond_change_log 
+	WHERE log_date >= begin_time AND log_date < end_time AND capital_type_id = 4 OR capital_type_id = 6  AND  user_id IN (SELECT user_id FROM all_user_table);
 	
 	-- 订单信息
 	-- 充值订单
-	SELECT COUNT(*) INTO DayOffLineOrder FROM xjtreasuredb.OffLineOrder WHERE OrderStatus =0 AND  UserID IN (SELECT UserID FROM AllUserTable);-- AND ApplyDate>=BeginTime AND ApplyDate< EndTime;
+	SELECT COUNT(*) INTO day_offLine_order FROM off_line_order WHERE order_status =0 AND  user_id IN (SELECT user_id FROM all_user_table);-- AND ApplyDate>=begin_time AND ApplyDate< end_time;
 	-- 兑换订单
-	SELECT COUNT(*) INTO DayExchangeOrder FROM xjtreasuredb.RecordExchangeInfo WHERE ApplyStatus =1 AND UserID IN (SELECT UserID FROM AllUserTable);-- AND ApplyDate>=BeginTime AND ApplyDate< EndTime;
+	SELECT COUNT(*) INTO day_exchange_order FROM record_exchange_info WHERE apply_status =1 AND user_id IN (SELECT user_id FROM all_user_table);-- AND ApplyDate>=begin_time AND ApplyDate< end_time;
 	
 	
-	SELECT DayRechargeCount AS DayRechargeCount,DayRechargeAmount AS DayRechargeAmount,RechargeTotalAmount AS RechargeTotalAmount,RechargeMoreCount AS RechargeMoreCount,RechargeFirstCount AS RechargeFirstCount,DayRechargeMaxAmount AS DayRechargeMaxAmount, DayRegUserCount AS DayRegUserCount,RegTotalCount AS RegTotalCount, OnlineCount AS OnlineCount, DayOutCount AS DayOutCount,DayTotalOutAmount AS DayTotalOutAmount,TotalOutAmount AS TotalOutAmount,TotalWaterScore AS TotalWaterScore,TotalUserScore AS TotalUserScore,SettleWaterScore AS SettleWaterScore, SettleRoyaltyAmount AS SettleRoyaltyAmount,GetRoyaltyAmount AS GetRoyaltyAmount,NoGetRoyaltyAmount AS NoGetRoyaltyAmount,ParentUserRegCount AS ParentUserRegCount,SendAmount AS SendAmount,DayOffLineOrder AS DayOffLineOrder, DayExchangeOrder AS DayExchangeOrder;
+	SELECT day_recharge_count AS day_recharge_count,day_recharge_amount AS day_recharge_amount,recharge_total_amount AS recharge_total_amount,recharge_more_count AS recharge_more_count,recharge_first_count AS recharge_first_count,day_recharge_max_amount AS day_recharge_max_amount, day_reg_user_count AS day_reg_user_count,reg_total_count AS reg_total_count, online_count AS online_count, day_out_count AS day_out_count,day_total_out_amount AS day_total_out_amount,total_out_amount AS total_out_amount,total_water_score AS total_water_score,total_user_score AS total_user_score,settle_water_score AS settle_water_score, settle_royalty_amount AS settle_royalty_amount,get_royalty_amount AS get_royalty_amount,no_get_royalty_amount AS no_get_royalty_amount,parent_user_reg_count AS parent_user_reg_count,send_amount AS send_amount,day_offLine_order AS day_offLine_order, day_exchange_order AS day_exchange_order;
 	
 
 END
@@ -2920,34 +2921,34 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_ExchangeDataAnalysis`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_ExchangeDataAnalysis`(IN `dataBegin` datetime,IN `dateEnd` datetime)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_ExchangeDataAnalysis`(IN `data_begin` datetime,IN `date_end` datetime)
     COMMENT '兑换数据分析'
 BEGIN
 	#Routine body goes here...
 		
-	DECLARE ExchangeCount INT;									-- 兑换总笔数
-	DECLARE ExchangeTotalAmount DECIMAL(22,3);	-- 兑换总金额
-	DECLARE ExchangeUserCount INT;							-- 兑换总人数
-	DECLARE ExchangeAVGAmount DECIMAL(18,3);		-- 兑换人均金额
-	DECLARE ExchangeMoreCount INT;							-- 兑换大于1次人数
-	DECLARE ExchangeMinAmount DECIMAL(18,3);	-- 一次兑换最少金额
-	DECLARE ExchangeMaxAmount DECIMAL(18,3);	-- 一次兑换最多金额
+	DECLARE exchange_count INT;									-- 兑换总笔数
+	DECLARE exchange_total_amount DECIMAL(22,3);	-- 兑换总金额
+	DECLARE exchange_user_count INT;							-- 兑换总人数
+	DECLARE exchange_avg_amount DECIMAL(18,3);		-- 兑换人均金额
+	DECLARE exchange_more_count INT;							-- 兑换大于1次人数
+	DECLARE exchange_min_amount DECIMAL(18,3);	-- 一次兑换最少金额
+	DECLARE exchange_max_amount DECIMAL(18,3);	-- 一次兑换最多金额
 
 		
-	SELECT  IFNULL(SUM(Amount),0), COUNT(*), IFNULL(MAX(Amount),0),IFNULL(MIN(Amount),0) INTO ExchangeTotalAmount,ExchangeCount,ExchangeMaxAmount,ExchangeMinAmount FROM xjtreasuredb.RecordExchangeInfo	WHERE HandlerDate>=dataBegin AND HandlerDate< dateEnd AND ApplyStatus =2;
+	SELECT  IFNULL(SUM(amount),0), COUNT(*), IFNULL(MAX(amount),0),IFNULL(MIN(amount),0) INTO exchange_total_amount,exchange_count,exchange_max_amount,exchange_min_amount FROM record_exchange_info	WHERE handler_date>=data_begin AND handler_date< date_end AND apply_status =2;
 	
-	-- 总人数
-	SELECT COUNT(1) INTO ExchangeUserCount FROM(SELECT  UserID  FROM xjtreasuredb.RecordExchangeInfo	WHERE HandlerDate>=dataBegin AND HandlerDate< dateEnd AND ApplyStatus =2 GROUP BY UserID) TT;
-	IF ExchangeUserCount = 0 THEN
-		SET ExchangeAVGAmount = 0;
+		-- 总人数
+	SELECT COUNT(1) INTO exchange_user_count FROM(SELECT  user_id  FROM record_exchange_info	WHERE handler_date>=data_begin AND handler_date< dateEnd AND apply_status =2 GROUP BY user_id) TT;
+	IF exchange_user_count = 0 THEN
+		SET exchange_avg_amount = 0;
 	ELSE
-		SET ExchangeAVGAmount = ExchangeTotalAmount / ExchangeUserCount;
+		SET exchange_avg_amount = exchange_total_amount / exchange_user_count;
 	END IF;
 	
 	-- 二次兑换玩家
-	SELECT COUNT(Total)  INTO ExchangeMoreCount	FROM (SELECT COUNT(UserID) AS Total FROM xjtreasuredb.RecordExchangeInfo WHERE HandlerDate>=dataBegin AND HandlerDate< dateEnd AND ApplyStatus =2 GROUP BY UserID) A WHERE Total>1;
+	SELECT COUNT(total)  INTO exchange_more_count	FROM (SELECT COUNT(user_id) AS total FROM record_exchange_info WHERE handler_date>=data_begin AND handler_date< date_end AND apply_status =2 GROUP BY user_id) A WHERE total>1;
 	
-	SELECT ExchangeCount AS ExchangeCount,ExchangeTotalAmount AS ExchangeTotalAmount, ExchangeUserCount AS ExchangeUserCount, ExchangeAVGAmount AS ExchangeAVGAmount,ExchangeMoreCount AS ExchangeMoreCount,ExchangeMaxAmount AS ExchangeMaxAmount, ExchangeMinAmount AS ExchangeMinAmount;	
+	SELECT exchange_count AS exchange_count,exchange_total_amount AS exchange_total_amount, exchange_user_count AS exchange_user_count, exchange_avg_amount AS exchange_avg_amount,exchange_more_count AS exchange_more_count,exchange_max_amount AS exchange_max_amount, exchange_min_amount AS exchange_min_amount;	
 
 END
 ;;
@@ -2958,89 +2959,89 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_GetAgentTeamList`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_GetAgentTeamList`(IN `intUserID` int,IN `intAgentLevel` int,IN `dateSearch` datetime,IN `dateRegBegin` datetime,IN `dateRegEnd` datetime,IN `intPageIndex` int,IN `intPageSize` int,IN `intUserType` int,IN `oderyFiled` int)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_GetAgentTeamList`(IN `int_user_id` int,IN `int_agent_level` int,IN `date_search` datetime,IN `date_reg_begin` datetime,IN `date_reg_end` datetime,IN `int_page_index` int,IN `int_page_size` int,IN `int_user_type` int,IN `odery_filed` int)
     COMMENT '分页获取代理团队数据'
 BEGIN
 	#Routine body goes here...
 	
-	DECLARE skipNum INT;
+	DECLARE skip_num INT;
 	DECLARE counts INT;
-	DECLARE dateSearchDateID INT;
-	DECLARE dateSearchEnd datetime;
+	DECLARE date_search_date_id INT;
+	DECLARE date_search_end datetime;
 	
 	
 	-- 
-	DROP TABLE if  EXISTS TEMPUSERINFO;
-	Create TEMPORARY table TEMPUSERINFO(  `UserID` int(11) NOT NULL,`ParentID` int(11) NOT NULL,`AgentLevel` int(11) NOT NULL,`TotalAmount` DECIMAL(18,2) NOT NULL,`CurrentAmount` DECIMAL(18,2) NOT NULL  )ENGINE = InnoDB;
+	DROP TABLE if  EXISTS temp_user_info;
+	Create TEMPORARY table temp_user_info(  `user_id` int(11) NOT NULL,`parent_id` int(11) NOT NULL,`agent_level` int(11) NOT NULL,`total_amount` DECIMAL(18,2) NOT NULL,`current_amount` DECIMAL(18,2) NOT NULL  )ENGINE = InnoDB;
 	
 		--
-	DROP TABLE if  EXISTS TEMPUSERID;
-	Create TEMPORARY table TEMPUSERID(  `UserID` int(11) NOT NULL,`ParentID` int(11) NOT NULL,`AgentLevel` int(11) NOT NULL,`TotalAmount` DECIMAL(18,2) NOT NULL,`CurrentAmount` DECIMAL(18,2) NOT NULL  )ENGINE = InnoDB;
+	DROP TABLE if  EXISTS temp_puser_id;
+	Create TEMPORARY table temp_puser_id(  `user_id` int(11) NOT NULL,`parent_id` int(11) NOT NULL,`agent_level` int(11) NOT NULL,`total_amount` DECIMAL(18,2) NOT NULL,`current_amount` DECIMAL(18,2) NOT NULL  )ENGINE = InnoDB;
 	
-	DROP TABLE if  EXISTS NEWUSER;
-	Create TEMPORARY table NEWUSER(  `UserID` int(11) NOT NULL )ENGINE = InnoDB;
+	DROP TABLE if  EXISTS new_user;
+	Create TEMPORARY table new_user(  `user_id` int(11) NOT NULL )ENGINE = InnoDB;
 	
 			-- 子级
-	DROP TABLE if  EXISTS TEMPUSERList;
-	Create TEMPORARY table TEMPUSERList(  `UserID` int(11) NOT NULL,`ParentID` int(11) NOT NULL,`AgentLevel` int(11) NOT NULL,`TotalAmount` DECIMAL(18,2) NOT NULL,`CurrentAmount` DECIMAL(18,2) NOT NULL,`ChildList` VARCHAR(1000) DEFAULT '',`ChildCount` int(11) DEFAULT 0 )ENGINE = InnoDB;
+	DROP TABLE if  EXISTS temp_user_list;
+	Create TEMPORARY table temp_user_list(  `user_id` int(11) NOT NULL,`parent_id` int(11) NOT NULL,`agent_level` int(11) NOT NULL,`total_amount` DECIMAL(18,2) NOT NULL,`current_amount` DECIMAL(18,2) NOT NULL,`child_list` VARCHAR(1000) DEFAULT '',`child_count` int(11) DEFAULT 0 )ENGINE = InnoDB;
 	
 	
 				
 	-- 跳过数目
-	SET skipNum = (intPageIndex - 1) * intPageSize;
-	SET dateSearchDateID = CAST(CAST(dateSearch AS date) AS UNSIGNED);
-	SET dateSearchEnd = ADDDATE(dateSearch,INTERVAL 1 DAY);
+	SET skip_num = (int_page_index - 1) * int_page_size;
+	SET date_search_date_id = CAST(CAST(date_search AS date) AS UNSIGNED);
+	SET date_search_end = ADDDATE(date_search,INTERVAL 1 DAY);
 			
-	IF intUserID IS NOT NULL AND	intUserID <> 0 THEN
-		 INSERT  TEMPUSERINFO values(intUserID);
+	IF int_user_id IS NOT NULL AND	int_user_id <> 0 THEN
+		 INSERT  temp_user_info values(int_user_id);
 	ELSE		
 		
-		IF  dateRegBegin IS NOT NULL AND  dateRegEnd IS NOT NULL THEN
-			INSERT INTO TEMPUSERINFO  SELECT UserID,ParentID,AgentLevel,TotalAmount,CurrentAmount FROM ( SELECT info.UserID,agent.AgentLevel,agent.TotalAmount,agent.CurrentAmount,agent.ParentID FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE RegisterDate >= dateRegBegin AND RegisterDate < dateRegEnd) TEMP;		
-		ELSE IF dateRegBegin IS NOT NULL THEN
-			INSERT INTO TEMPUSERINFO  SELECT UserID,ParentID,AgentLevel,TotalAmount,CurrentAmount FROM ( SELECT info.UserID,agent.AgentLevel,agent.TotalAmount,agent.CurrentAmount,agent.ParentID FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE RegisterDate >= dateRegBegin) TEMP;		
-		ELSE IF dateRegEnd IS NOT NULL THEN
-			INSERT INTO TEMPUSERINFO  SELECT UserID,ParentID,AgentLevel,TotalAmount,CurrentAmount FROM ( SELECT info.UserID,agent.AgentLevel,agent.TotalAmount,agent.CurrentAmount,agent.ParentID FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID WHERE RegisterDate < dateRegEnd) TEMP;	
+		IF  date_reg_begin IS NOT NULL AND  date_reg_end IS NOT NULL THEN
+			INSERT INTO temp_user_info  SELECT user_id,parent_id,agent_level,total_amount,current_amount FROM ( SELECT info.user_id,agent.agent_level,agent.total_amount,agent.current_amount,agent.parent_id FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE register_date >= date_reg_begin AND register_date < date_reg_end) TEMP;		
+		ELSE IF date_reg_begin IS NOT NULL THEN
+			INSERT INTO temp_user_info  SELECT user_id,parent_id,agent_level,total_amount,current_amount FROM ( SELECT info.user_id,agent.agent_level,agent.total_amount,agent.current_amount,agent.parent_id FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE register_date >= date_reg_begin) TEMP;		
+		ELSE IF date_reg_end IS NOT NULL THEN
+			INSERT INTO temp_user_info  SELECT user_id,parent_id,agent_level,total_amount,current_amount FROM ( SELECT info.user_id,agent.agent_level,agent.total_amount,agent.current_amount,agent.parent_id FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id WHERE register_date < date_reg_end) TEMP;	
 		ELSE
-			INSERT INTO TEMPUSERINFO  SELECT UserID,ParentID,AgentLevel,TotalAmount,CurrentAmount FROM ( SELECT info.UserID,agent.AgentLevel,agent.TotalAmount,agent.CurrentAmount,agent.ParentID FROM xjaccountsdb.AccountsInfo info INNER JOIN xjaccountsdb.AccountsAgent agent ON info.UserID = agent.UserID) TEMP;	
+			INSERT INTO temp_user_info  SELECT user_id,parent_id,agent_level,total_amount,current_amount FROM ( SELECT info.user_id,agent.agent_level,agent.total_amount,agent.current_amount,agent.parent_id FROM accounts_info info INNER JOIN accounts_agent agent ON info.user_id = agent.user_id) TEMP;	
 		END IF;
 		END IF;
 		END IF;
 		
-		IF intAgentLevel IS NOT NULL AND intAgentLevel <> 0 THEN
-			INSERT INTO TEMPUSERID  SELECT * FROM TEMPUSERINFO WHERE AgentLevel = intAgentLevel;
+		IF int_agent_level IS NOT NULL AND int_agent_level <> 0 THEN
+			INSERT INTO temp_puser_id  SELECT * FROM temp_user_info WHERE agent_level = int_agent_level;
 		ELSE
-			INSERT INTO TEMPUSERID  SELECT * FROM TEMPUSERINFO;
+			INSERT INTO temp_puser_id  SELECT * FROM temp_user_info;
 		END IF;
 		
 	END IF;
 	
-	SELECT COUNT(UserID) into counts FROM TEMPUSERID;
+	SELECT COUNT(user_id) into counts FROM temp_puser_id;
 	IF counts > 0 THEN
 		
 		
 		-- 当天注册用户
-		IF intUserType IS NOT NULL THEN
-			INSERT INTO NEWUSER SELECT UserID FROM xjaccountsdb.AccountsInfo WHERE RegisterDate >= dateSearch AND RegisterDate < dateSearchEnd AND UserType =intUserType;
+		IF int_user_type IS NOT NULL THEN
+			INSERT INTO new_user SELECT user_id FROM accounts_info WHERE register_date >= date_search AND register_date < date_search_end AND UserType =int_user_type;
 		ELSE
-			INSERT INTO NEWUSER SELECT UserID FROM xjaccountsdb.AccountsInfo WHERE RegisterDate >= dateSearch AND RegisterDate < dateSearchEnd;
+			INSERT INTO new_user SELECT user_id FROM accounts_info WHERE register_date >= date_search AND register_date < date_search_end;
 		END IF;
 		
-		IF (SELECT COUNT(UserID) FROM NEWUSER) >0 THEN		
-			INSERT INTO TEMPUSERList SELECT *,0 FROM (SELECT userid.*,COM_SP_GetChildList(UserID) FROM TEMPUSERID userid) childList;			
+		IF (SELECT COUNT(user_id) FROM new_user) >0 THEN		
+			INSERT INTO temp_user_list SELECT *,0 FROM (SELECT user_id.*,COM_SP_Getchild_list(user_id) FROM temp_puser_id user_id) child_list;			
 			-- 更新子级新增数量
-			UPDATE TEMPUSERList SET ChildCount = (SELECT COUNT(*) FROM NEWUSER WHERE instr(ChildList,CONCAT(',',UserID,',')));
+			UPDATE temp_user_list SET child_count = (SELECT COUNT(*) FROM new_user WHERE instr(child_list,CONCAT(',',user_id,',')));
 		ELSE
-			INSERT INTO TEMPUSERList SELECT userid.*,'',0 FROM TEMPUSERID userid;
+			INSERT INTO temp_user_list SELECT user_id.*,'',0 FROM temp_puser_id user_id;
 		END IF;
 		
 		
 		-- 当天团队数据
-		SELECT RoyaltyAmount AS TotalAmount,DireRoyaltyAmount AS DireSettleAmount FROM xjtreasuredb.AgentRoyaltyLog WHERE DateID = dateSearchDateID;
+		SELECT royalty_amount AS total_amount,dire_royalty_amount AS dire_settle_amount FROM agent_royalty_log WHERE date_id = date_search_date_id;
 		
 		
 		
-		-- SELECT * from TEMPUSERList list LEFT JOIN xjtreasuredb.GameRecordInfo record ON record.UserID IN ;
+		-- SELECT * from temp_user_list list LEFT JOIN xjtreasuredb.GameRecordInfo record ON record.user_id IN ;
 		
 		
 		
@@ -3060,142 +3061,142 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_OffLineOrderAdult`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_OffLineOrderAdult`(IN `strOrderID` varchar(32),IN `intOrderStatus` int,IN `decPayAmount` decimal(18,2),IN `intOperUserID` int,IN `strRemarks` varchar(200))
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_OffLineOrderAdult`(IN `str_order_id` varchar(32),IN `int_order_status` int,IN `dec_pay_amount` decimal(18,2),IN `int_oper_user_id` int,IN `str_remarks` varchar(200))
     COMMENT '线下充值订单审核'
 exitpro:BEGIN
 	#Routine body goes here...
 	
 	-- 订单信息
-	DECLARE paraOrderID	varchar(32);	-- 订单ID
-	DECLARE paraOrderStatus	INT;			-- 订单状态
-	DECLARE paraOrderAmount	DECIMAL(18,2);		-- 订单金额
-	DECLARE	paraCostPercent	DECIMAL(5,2);			-- 手续费，百分比值
-	DECLARE	paraCostAmount	DECIMAL(5,2);			-- 手续费用
-	DECLARE paraApplyDate 	DATETIME;					-- 订单时间
-	DECLARE paraPayType	INT;			-- 支付方式
+	DECLARE para_order_id	varchar(32);	-- 订单id
+	DECLARE para_order_status	INT;			-- 订单状态
+	DECLARE para_order_amount	DECIMAL(18,2);		-- 订单金额
+	DECLARE	para_cost_percent	DECIMAL(5,2);			-- 手续费，百分比值
+	DECLARE	para_cost_amount	DECIMAL(5,2);			-- 手续费用
+	DECLARE para_apply_date 	DATETIME;					-- 订单时间
+	DECLARE para_pay_type	INT;			-- 支付方式
 	
 	-- 渠道信息
-	DECLARE paraChannelID	INT;								-- 充值渠道ID
+	DECLARE para_channel_id	INT;								-- 充值渠道id
 	
 	-- 用户信息
-	DECLARE paraUserID INT;						-- 用户ID
-	DECLARE paraIPAddress VARCHAR(50);-- 用户IP
-	DECLARE paraLevelNum INT;						-- 用户ID
-	DECLARE paraBefoeDiamond DECIMAL(18,3);	-- 用户钻石
+	DECLARE para_user_id INT;						-- 用户id
+	DECLARE para_ip_address VARCHAR(50);-- 用户IP
+	DECLARE para_level_num INT;						-- 用户id
+	DECLARE para_befoe_diamond DECIMAL(18,3);	-- 用户钻石
 	
 	-- 首充活动
-	DECLARE paraActivityID	INT;
-	DECLARE paraBeginTime		DATETIME; -- 活动开始时间
-	DECLARE paraEndTime			DATETIME; -- 活动开始时间
-	DECLARE paraGiveDiamond	DECIMAL(5,2) DEFAULT 0; -- 活动赠送钻石	
+	DECLARE para_activity_id	INT;
+	DECLARE para_begin_time		DATETIME; -- 活动开始时间
+	DECLARE para_end_time			DATETIME; -- 活动开始时间
+	DECLARE para_give_diamond	DECIMAL(5,2) DEFAULT 0; -- 活动赠送钻石	
 	
 	-- 打码信息
-	DECLARE paraCodeCoinRate	 INT;
-	DECLARE paraCodeID			   INT;
-	DECLARE paraCodeAmounts 	 DECIMAL(18,3);	-- 当前充值打码额度
-	DECLARE paraPreCodeAmounts DECIMAL(18,3);	-- 需要打码金额
-	DECLARE paraPreDoneAmounts DECIMAL(18,3);	-- 已完成打码金额
-	DECLARE parapreNotAmounts  DECIMAL(18,3);	-- 上一次未完成金额
+	DECLARE para_code_coin_rate	 INT;
+	DECLARE para_code_id			   INT;
+	DECLARE para_code_amounts 	 DECIMAL(18,3);	-- 当前充值打码额度
+	DECLARE para_pre_code_amounts DECIMAL(18,3);	-- 需要打码金额
+	DECLARE para_pre_done_amounts DECIMAL(18,3);	-- 已完成打码金额
+	DECLARE para_pre_not_amounts  DECIMAL(18,3);	-- 上一次未完成金额
 	
 	
-	SELECT OrderID, OrderAmount,OrderStatus,UserID,LevelNum,ApplyDate,IPAddress,ChannelID,PayType INTO paraOrderID,paraOrderAmount,paraOrderStatus,paraUserID,paraLevelNum,paraApplyDate,paraIPAddress,paraChannelID,paraPayType
-	FROM xjtreasuredb.OffLineOrder WHERE OrderID=strOrderID;
+	SELECT order_id, order_amount,order_status,user_id,level_num,apply_date,ip_address,channel_id,pay_type INTO para_order_id,para_order_amount,para_order_status,para_user_id,para_level_num,para_apply_date,para_ip_address,para_channel_id,para_pay_type
+	FROM off_line_order WHERE order_id=str_order_id;
 	
-	IF paraOrderID IS NULL THEN
-		SELECT 1 AS errorCode, '抱歉，当前订单不存在，请刷新页面重新获取' AS errorMsg;		
+	IF para_order_id IS NULL THEN
+		SELECT 1 AS error_code, '抱歉，当前订单不存在，请刷新页面重新获取' AS error_msg;		
 		LEAVE exitpro;
 	END IF;
 	
-	IF intOrderStatus >= 1 AND  paraOrderStatus >= 1 THEN
-		SELECT 1 AS errorCode, '抱歉，当前订单状态，您无法进行当前操作' AS errorMsg;		
+	IF int_order_status >= 1 AND  para_order_status >= 1 THEN
+		SELECT 1 AS error_code, '抱歉，当前订单状态，您无法进行当前操作' AS error_msg;		
 		LEAVE exitpro;
 	END IF;
 	
-	IF intOrderStatus = 1 THEN
+	IF int_order_status = 1 THEN
 		
-		SELECT CostPercent INTO paraCostPercent FROM xjtreasuredb.OffPayChannel WHERE ChannelID = paraChannelID;
-		IF paraCostPercent IS NULL THEN
-			SELECT 1 AS errorCode, '抱歉，当前订单的线下充值渠道尚未配置' AS errorMsg;		
+		SELECT cost_percent INTO para_cost_percent FROM off_pay_channel WHERE channel_id = para_channel_id;
+		IF para_cost_percent IS NULL THEN
+			SELECT 1 AS error_code, '抱歉，当前订单的线下充值渠道尚未配置' AS error_msg;		
 			LEAVE exitpro;
 		END IF;
 		
 		-- 计算手续费
-		SET paraCostAmount = paraCostPercent * decPayAmount / 100;
+		SET para_cost_amount = para_cost_percent * dec_pay_amount / 100;
 		
-		UPDATE xjtreasuredb.OffLineOrder SET OrderStatus =intOrderStatus,PayAmount =decPayAmount,CostAmount =paraCostAmount, OperUserID = intOperUserID,AdultDate = NOW(),Remarks = strRemarks  
-		WHERE OrderID = strOrderID;
+		UPDATE off_line_order SET order_status =int_order_status,pay_amount =dec_pay_amount,cost_amount =para_cost_amount, oper_user_id = int_oper_user_id,adult_date = NOW(),remarks = str_remarks  
+		WHERE order_id = str_order_id;
 		
 		-- 首充活动-----------------		
-		SELECT ActivityID, BeginTime,EndTime INTO paraActivityID,paraBeginTime,paraEndTime FROM xjplatformdb.ActivityInfo WHERE TypeID =2 AND IsEnable =1 AND BeginTime <= NOW() AND EndTime > NOW();
-		IF paraActivityID IS NOT NULL THEN
-			IF NOT EXISTS(SELECT 1 FROM xjtreasuredb.PaidOrderInfo WHERE UserID = paraUserID AND ApplyDate >= BeginTime AND ApplyDate < EndTime AND PayAmount > 200 ) THEN
-				IF decPayAmount >= 200 AND decPayAmount < 500 THEN
-						SET paraGiveDiamond= 18;
-					ELSEIF decPayAmount >= 500 AND decPayAmount < 1000 THEN
-						SET paraGiveDiamond= 48;
-					ELSEIF decPayAmount >= 1000 AND decPayAmount < 5000 THEN
-						SET paraGiveDiamond= 108;
-					ELSEIF decPayAmount >= 5000 AND decPayAmount < 10000 THEN
-						SET paraGiveDiamond= 588;
-					ELSEIF decPayAmount >= 10000 THEN
-						SET paraGiveDiamond= 1888;
+		SELECT activity_id, begin_time,end_time INTO para_activity_id,para_begin_time,para_end_time FROM activity_info WHERE type_id =2 AND is_enable =1 AND begin_time <= NOW() AND end_time > NOW();
+		IF para_activity_id IS NOT NULL THEN
+			IF NOT EXISTS(SELECT 1 FROM paid_order_info WHERE user_id = para_user_id AND apply_date >= begin_time AND apply_date < end_time AND pay_amount > 200 ) THEN
+				IF dec_pay_amount >= 200 AND dec_pay_amount < 500 THEN
+						SET para_give_diamond= 18;
+					ELSEIF dec_pay_amount >= 500 AND dec_pay_amount < 1000 THEN
+						SET para_give_diamond= 48;
+					ELSEIF dec_pay_amount >= 1000 AND dec_pay_amount < 5000 THEN
+						SET para_give_diamond= 108;
+					ELSEIF dec_pay_amount >= 5000 AND dec_pay_amount < 10000 THEN
+						SET para_give_diamond= 588;
+					ELSEIF dec_pay_amount >= 10000 THEN
+						SET para_give_diamond= 1888;
 					ELSE
-						SET paraGiveDiamond = 0;
+						SET para_give_diamond = 0;
 				END IF;
 			END IF;			
 		END IF;
 		
-		SELECT Diamond INTO paraBefoeDiamond FROM xjtreasuredb.GameScoreInfo WHERE UserID=paraUserID;
+		SELECT diamond INTO para_befoe_diamond FROM game_score_info WHERE user_id=para_user_id;
 		
 		-- 累加钻石
-		UPDATE xjtreasuredb.GameScoreInfo SET Diamond = Diamond +  paraGiveDiamond + decPayAmount WHERE UserID = paraUserID;
+		UPDATE game_score_info SET diamond = diamond +  para_give_diamond + dec_pay_amount WHERE user_id = para_user_id;
 		-- 写入钻石变更记录
-		INSERT INTO xjtreasuredb.GameDiamondChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-		VALUES (paraUserID,1,NOW(),decPayAmount, paraBefoeDiamond + decPayAmount ,paraIPAddress,'钻石线下充值');
+		INSERT INTO game_diamond_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+		VALUES (para_user_id,1,NOW(),dec_pay_amount, para_befoe_diamond + dec_pay_amount ,para_ip_address,'钻石线下充值');
 
-		IF paraGiveDiamond > 0 THEN
+		IF para_give_diamond > 0 THEN
 			-- 写入赠送钻石变更记录
-			INSERT INTO xjtreasuredb.GameDiamondChangeLog(UserID,CapitalTypeID,LogDate,CapitalAmount,LastAmount,ClientIP,Remark)
-			VALUES (paraUserID,4,NOW(),paraGiveDiamond,paraBefoeDiamond + decPayAmount + paraGiveDiamond ,paraIPAddress,'首充赠送钻石');
+			INSERT INTO game_diamond_change_log(user_id,capital_type_id,log_date,capital_amount,last_amount,client_ip,remark)
+			VALUES (para_user_id,4,NOW(),para_give_diamond,para_befoe_diamond + dec_pay_amount + para_give_diamond ,para_ip_address,'首充赠送钻石');
 		END IF;
 		
 		-- 插入充值成功记录
-		INSERT INTO xjtreasuredb.PaidOrderInfo(OperUserID,PayType,UserID,OrderID,OrderAmount,DiscountScale,PayAmount,Diamond,BeforeDiamond,IPAddress,PayDate,ChannelID,LevelNum,PayPlatformId,CostAmount,ApplyDate)
-		VALUES(intOperUserID,paraPayType,paraUserID,strOrderID,paraOrderAmount,0,decPayAmount,paraBefoeDiamond + decPayAmount,paraBefoeDiamond,paraIPAddress,NOW(),paraChannelID,paraLevelNum,0,paraCostAmount,paraApplyDate);
+		INSERT INTO paid_order_info(oper_user_id,pay_type,user_id,order_id,order_amount,discount_scale,pay_amount,diamond,Beforediamond,ip_address,PayDate,channel_id,level_num,PayPlatformid,cost_amount,apply_date)
+		VALUES(int_oper_user_id,para_pay_type,para_user_id,str_order_id,para_order_amount,0,dec_pay_amount,para_befoe_diamond + dec_pay_amount,para_befoe_diamond,para_ip_address,NOW(),para_channel_id,para_level_num,0,para_cost_amount,para_apply_date);
 		
 		-- 更新用户打码
 		-- 获取打码比例
-		SELECT StatusValue INTO paraCodeCoinRate FROM xjplatformdb.SystemStatusInfo WHERE StatusName='CodeCoinRate';
-		IF paraCodeCoinRate IS NULL THEN
-			SET paraCodeCoinRate = 100;
+		SELECT status_value INTO para_code_coin_rate FROM system_status_info WHERE status_name='code_coin_rate';
+		IF para_code_coin_rate IS NULL THEN
+			SET para_code_coin_rate = 100;
 		END IF;
 		-- 当前需要打码金额
-		SET paraCodeAmounts = paraCodeCoinRate * ( decPayAmount + paraGiveDiamond * 1.5 ) / 100.0;
+		SET para_code_amounts = para_code_coin_rate * ( dec_pay_amount + para_give_diamond * 1.5 ) / 100.0;
 		-- 获取上一次未完成打码金额
-		SELECT ID, CodeAmounts,DoneAmounts INTO paraCodeID,paraPreCodeAmounts,paraPreDoneAmounts FROM xjtreasuredb.RecordCodeTran WHERE UserID = paraUserID AND IsComplete=0;
-		IF paraCodeID IS NULL THEN
-			SET paraPreCodeAmounts =0;
-			SET paraPreDoneAmounts =0;
+		SELECT id, code_amounts,done_amounts INTO para_code_id,para_pre_code_amounts,para_pre_done_amounts FROM record_code_tran WHERE user_id = para_user_id AND is_complete=0;
+		IF para_code_id IS NULL THEN
+			SET para_pre_code_amounts =0;
+			SET para_pre_done_amounts =0;
 		END IF;
 		
-		SET paraPreNotAmounts = paraPreCodeAmounts - paraPreDoneAmounts;
-		SET paraCodeAmounts = paraCodeAmounts + paraPreNotAmounts;
+		SET para_pre_not_amounts = para_pre_code_amounts - para_pre_done_amounts;
+		SET para_code_amounts = para_code_amounts + para_pre_not_amounts;
 		
-		INSERT INTO xjtreasuredb.RecordCodeTran(UserID,TradeAmounts,PreNotAmounts,CodeAmounts,TranTime,DoneAmounts)
-		VALUES(paraUserID,decPayAmount + paraGiveDiamond * 1.5,paraPreNotAmounts,paraCodeAmounts,NOW(),paraPreNotAmounts);
+		INSERT INTO record_code_tran(user_id,trade_amounts,pre_not_amounts,code_amounts,tran_time,done_amounts)
+		VALUES(para_user_id,dec_pay_amount + para_give_diamond * 1.5,para_pre_not_amounts,para_code_amounts,NOW(),para_pre_not_amounts);
 		
-		UPDATE xjtreasuredb.RecordCodeTran SET IsComplete=1 WHERE ID=paraCodeID;
+		UPDATE record_code_tran SET is_complete=1 WHERE id=para_code_id;
 		
-	ELSEIF intOrderStatus =2 THEN
-		UPDATE xjtreasuredb.OffLineOrder SET OrderStatus =intOrderStatus,PayAmount =0,CostAmount =0, OperUserID = intOperUserID,AdultDate = NOW(),Remarks = strRemarks  
-		WHERE OrderID = strOrderID;
-	ELSEIF intOrderStatus =0 THEN
-		UPDATE xjtreasuredb.OffLineOrder SET OrderStatus =intOrderStatus,PayAmount =0,CostAmount =0, OperUserID = 0,AdultDate = NULL,Remarks = ''  
-		WHERE OrderID = strOrderID;	
+	ELSEIF int_order_status =2 THEN
+		UPDATE off_line_order SET order_status =int_order_status,pay_amount =0,cost_amount =0, oper_user_id = int_oper_user_id,adult_date = NOW(),remarks = str_remarks  
+		WHERE order_id = str_order_id;
+	ELSEIF int_order_status =0 THEN
+		UPDATE off_line_order SET order_status =int_order_status,pay_amount =0,cost_amount =0, oper_user_id = 0,adult_date = NULL,remarks = ''  
+		WHERE order_id = str_order_id;	
 	END IF;
 	
 	
-	SELECT 0 AS errorCode, '审核成功' AS errorMsg;	
+	SELECT 0 AS error_code, '审核成功' AS error_msg;	
 
 END
 ;;
@@ -3206,35 +3207,35 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_RechargeDataAnalysis`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_RechargeDataAnalysis`(IN `dataBegin` datetime,IN `dateEnd` datetime)
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_RechargeDataAnalysis`(IN `data_begin` datetime,IN `date_end` datetime)
     COMMENT '充值数据分析'
 BEGIN
 	#Routine body goes here...
 		
-	DECLARE RechargeCount INT;									-- 充值总笔数
-	DECLARE RechargeTotalAmount DECIMAL(22,3);	-- 充值总金额
-	DECLARE RechargeUserCount INT;							-- 充值总人数
-	DECLARE RechargeAVGAmount DECIMAL(18,3);		-- 充值人均金额
-	DECLARE RechargeMoreCount INT;							-- 充值大于1次人数
-	DECLARE RechargeMinAmount DECIMAL(18,3);	-- 一次充值最少金额
-	DECLARE RechargeMaxAmount DECIMAL(18,3);	-- 一次充值最多金额
+	DECLARE recharge_count INT;									-- 充值总笔数
+	DECLARE recharge_total_amount DECIMAL(22,3);	-- 充值总金额
+	DECLARE recharge_user_count INT;							-- 充值总人数
+	DECLARE recharge_avg_amount DECIMAL(18,3);		-- 充值人均金额
+	DECLARE recharge_more_count INT;							-- 充值大于1次人数
+	DECLARE recharge_min_amount DECIMAL(18,3);	-- 一次充值最少金额
+	DECLARE recharge_max_amount DECIMAL(18,3);	-- 一次充值最多金额
 
 		
-	SELECT  IFNULL(SUM(PayAmount),0), COUNT(*),IFNULL(MAX(PayAmount),0),IFNULL(MIN(PayAmount),0) INTO RechargeTotalAmount,RechargeCount,RechargeMaxAmount,RechargeMinAmount FROM xjtreasuredb.PaidOrderInfo
-	WHERE PayDate>=dataBegin AND PayDate< dateEnd;
+	SELECT  IFNULL(SUM(pay_amount),0), COUNT(*),IFNULL(MAX(pay_amount),0),IFNULL(MIN(pay_amount),0) INTO recharge_total_amount,recharge_count,recharge_max_amount,recharge_min_amount FROM paid_order_info
+	WHERE pay_date>=data_begin AND pay_date< date_end;
 	
 	-- 总人数
-	SELECT COUNT(1) INTO RechargeUserCount FROM(SELECT  UserID  FROM xjtreasuredb.PaidOrderInfo	WHERE PayDate>=dataBegin AND PayDate< dateEnd GROUP BY UserID) TT;
-	IF RechargeUserCount = 0 THEN
-		SET RechargeAVGAmount = 0;
+	SELECT COUNT(1) INTO recharge_user_count FROM(SELECT  user_id  FROM paid_order_info	WHERE pay_date>=data_begin AND pay_date< date_end GROUP BY user_id) TT;
+	IF recharge_user_count = 0 THEN
+		SET recharge_avg_amount = 0;
 	ELSE
-		SET RechargeAVGAmount = RechargeTotalAmount / RechargeUserCount;
+		SET recharge_avg_amount = recharge_total_amount / recharge_user_count;
 	END IF;
 	
 	-- 二次充值玩家
-	SELECT COUNT(Total)  INTO RechargeMoreCount	FROM (SELECT COUNT(UserID) AS Total FROM xjtreasuredb.PaidOrderInfo WHERE PayDate>=dataBegin AND PayDate< dateEnd GROUP BY UserID) A WHERE Total>1;
+	SELECT COUNT(total)  INTO recharge_more_count	FROM (SELECT COUNT(user_id) AS total FROM paid_order_info WHERE pay_date>=data_begin AND pay_date< date_end GROUP BY user_id) A WHERE total>1;
 		
-	SELECT RechargeCount AS RechargeCount,RechargeTotalAmount AS RechargeTotalAmount, RechargeUserCount AS RechargeUserCount, RechargeAVGAmount AS RechargeAVGAmount,RechargeMoreCount AS RechargeMoreCount,RechargeMaxAmount AS RechargeMaxAmount, RechargeMinAmount AS RechargeMinAmount;	
+	SELECT recharge_count AS recharge_count,recharge_total_amount AS recharge_total_amount, recharge_user_count AS recharge_user_count, recharge_avg_amount AS recharge_avg_amount,recharge_more_count AS recharge_more_count,recharge_max_amount AS recharge_max_amount, recharge_min_amount AS recharge_min_amount;	
 
 
 END
@@ -3246,175 +3247,176 @@ delimiter ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `WSP_PM_SettleAgentRoyalty`;
 delimiter ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_SettleAgentRoyalty`(IN `strUserID` varchar(1000),IN `intPreDay` INT)
-    COMMENT '用户代理返佣结算：结算某天前、给指定的某些（多个UserID则以英文逗号隔开）用户结算返佣，不结算其下级。如已结算，不再结算'
+CREATE DEFINER=`root`@`%` PROCEDURE `WSP_PM_SettleAgentRoyalty`(IN `str_user_id` varchar(1000),IN `int_pre_day` INT)
+    COMMENT '用户代理返佣结算：结算某天前、给指定的某些（多个user_id则以英文逗号隔开）用户结算返佣，不结算其下级。如已结算，不再结算'
 BEGIN
 	#Routine body goes here...
 	
 		
-	DECLARE RoyaltyTeamCount INT;								-- 最低人数限制
+	DECLARE royalty_team_count INT;								-- 最低人数限制
 	
-	DECLARE paraDateID INT;				-- 佣金日期值
-	DECLARE CurDate INT;			-- 当天日期
-	DECLARE BegINTime DATETIME;-- 开始时间
-	DECLARE EndTime DATETIME;		-- 结束时间	
+	DECLARE para_date_id INT;				-- 佣金日期值
+	DECLARE cur_date INT;			-- 当天日期
+	DECLARE beg_in_time DATETIME;-- 开始时间
+	DECLARE end_time DATETIME;		-- 结束时间	
 	
-	DECLARE ChildCount INT DEFAULT 0;-- 子级数量
+	DECLARE child_count INT DEFAULT 0;-- 子级数量
 	
-	DECLARE MinCountID INT DEFAULT 0;
-	DECLARE MaxCountID INT DEFAULT 0;
-	DECLARE paraUserID INT;
+	DECLARE min_count_id INT DEFAULT 0;
+	DECLARE max_count_id INT DEFAULT 0;
+	DECLARE para_user_id INT;
 	
-	DECLARE cMinCountID INT DEFAULT 0;
-	DECLARE cMaxCountID INT DEFAULT 0;
-	DECLARE paraCParentID INT DEFAULT 0;
+	DECLARE c_min_count_id INT DEFAULT 0;
+	DECLARE c_max_count_id INT DEFAULT 0;
+	DECLARE para_c_parent_id INT DEFAULT 0;
 	
-	DECLARE	paraTeamWaterScore DECIMAL(18,3) DEFAULT 0;-- 团队总流水
-	DECLARE paraTeamPercentValue DECIMAL(5,2) DEFAULT 0;-- 团队返佣比例
+	DECLARE	para_team_water_score DECIMAL(18,3) DEFAULT 0;-- 团队总流水
+	DECLARE para_team_percent_value DECIMAL(5,2) DEFAULT 0;-- 团队返佣比例
 	
-	DECLARE paraRoyaltyAmount DECIMAL(18,3) DEFAULT 0;-- 团队总返佣金额
+	DECLARE para_royalty_amount DECIMAL(18,3) DEFAULT 0;-- 团队总返佣金额
 	
-	DECLARE	paraDrieWaterScore DECIMAL(18,3) DEFAULT 0;-- 直属子级流水
-	DECLARE	paraDrieTotalWaterScore DECIMAL(18,3) DEFAULT 0;-- 直属子级总流水
-	DECLARE paraDrieRoyaltyAmount DECIMAL(18,3) DEFAULT 0;-- 直属子级总返佣金额
+	DECLARE	para_drie_water_score DECIMAL(18,3) DEFAULT 0;-- 直属子级流水
+	DECLARE	para_drie_total_water_score DECIMAL(18,3) DEFAULT 0;-- 直属子级总流水
+	DECLARE para_drie_royalty_amount DECIMAL(18,3) DEFAULT 0;-- 直属子级总返佣金额
 	
-	DECLARE	paraIndireChildWaterScore DECIMAL(18,3) DEFAULT 0;-- 间接子级流水
-	DECLARE paraIndireChildPercentValue DECIMAL(5,2) DEFAULT 0;-- 间接子级返佣比例
-	DECLARE paraIndireChildRoyaltyAmount DECIMAL(18,3) DEFAULT 0;-- 间接子级总返佣金额
+	DECLARE	para_indire_child_water_score DECIMAL(18,3) DEFAULT 0;-- 间接子级流水
+	DECLARE para_indire_child_percent_value DECIMAL(5,2) DEFAULT 0;-- 间接子级返佣比例
+	DECLARE para_indire_child_royalty_amount DECIMAL(18,3) DEFAULT 0;-- 间接子级总返佣金额
 	
 	-- 结算用户表
-	DROP TABLE IF  EXISTS UserTable;
-	CREATE TEMPORARY TABLE UserTable(`CountID` INT(11) NOT NULL AUTO_INCREMENT,`UserID` INT(11) NOT NULL,PRIMARY KEY (`CountID`))ENGINE = InnoDB;	
+	DROP TABLE IF  EXISTS user_table;
+	CREATE TEMPORARY TABLE user_table(`count_id` INT(11) NOT NULL AUTO_INCREMENT,`user_id` INT(11) NOT NULL,PRIMARY KEY (`count_id`))ENGINE = InnoDB;	
 	
 	-- 达标用户记录表
-	DROP TABLE IF  EXISTS AllAgentTable;
-	CREATE TEMPORARY TABLE AllAgentTable(`UserID` INT(11) NOT NULL,`AgentLevel` INT(11),`ParentID` INT(11),`ParentPath` varchar(1000)  )ENGINE = InnoDB;	
+	DROP TABLE IF  EXISTS all_agent_table;
+	CREATE TEMPORARY TABLE all_agent_table(`user_id` INT(11) NOT NULL,`agent_level` INT(11),`parent_id` INT(11),`parent_path` varchar(1000)  )ENGINE = InnoDB;	
 	
 	-- 所有子级
-	DROP TABLE IF  EXISTS AllChildTable;
-	CREATE TEMPORARY TABLE AllChildTable( `UserID` INT(11) NOT NULL,`AgentLevel` INT(11),`ParentID` INT(11),`ParentPath` varchar(1000),`IsRoyaltyRecharge` TINYINT(4))ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS all_child_table;
+	CREATE TEMPORARY TABLE all_child_table( `user_id` INT(11) NOT NULL,`agent_level` INT(11),`parent_id` INT(11),`parent_path` varchar(1000),`is_royalty_recharge` TINYINT(4))ENGINE = InnoDB;
 	
 	-- 直属子级
-	DROP TABLE IF  EXISTS DrieChildTable;
-	CREATE TEMPORARY TABLE DrieChildTable(`CountID` INT(11) NOT NULL AUTO_INCREMENT,`UserID` INT(11) NOT NULL,PRIMARY KEY (`CountID`))ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS drie_child_table;
+	CREATE TEMPORARY TABLE drie_child_table(`count_id` INT(11) NOT NULL AUTO_INCREMENT,`user_id` INT(11) NOT NULL,PRIMARY KEY (`count_id`))ENGINE = InnoDB;
 	
 	-- 达标用户流水记录表
-	DROP TABLE IF  EXISTS TempUserWaterScore;
-	CREATE TEMPORARY TABLE TempUserWaterScore(`UserID` INT(11) NOT NULL,`WaterScore` DECIMAL(18,3) )ENGINE = InnoDB;
+	DROP TABLE IF  EXISTS temp_user_water_score;
+	CREATE TEMPORARY TABLE temp_user_water_score(`user_id` INT(11) NOT NULL,`water_score` DECIMAL(18,3) )ENGINE = InnoDB;
 	
 	-- 只能结算昨天前的数据
-	IF intPreDay < 0 THEN
-		SET intPreDay = 1;
+	IF int_pre_day < 0 THEN
+		SET int_pre_day = 1;
 	END IF;
 	
 	-- 日期
-	SET CurDate = CURDATE();
-	SET BegINTime = DATE_SUB(CurDate, INTERVAL intPreDay DAY);
-	SET EndTime = DATE_SUB(CurDate, INTERVAL intPreDay -1 DAY);
+	SET cur_date = cur_date();
+	SET beg_in_time = DATE_SUB(cur_date, INTERVAL int_pre_day DAY);
+	SET end_time = DATE_SUB(cur_date, INTERVAL int_pre_day -1 DAY);
 	
-	SET paraDateID = CAST(CAST(BegINTime AS date) AS UNSIGNED);
+	SET para_date_id = CAST(CAST(beg_in_time AS date) AS UNSIGNED);
 		
-	IF  ISNULL(strUserID) <> 1 AND strUserID <> ''  THEN
+	IF  ISNULL(str_user_id) <> 1 AND str_user_id <> ''  THEN
 		
 		-- 最低人数限制
-		SELECT StatusValue INTO RoyaltyTeamCount FROM xjplatformdb.SystemStatusInfo WHERE StatusName='RoyaltyTeamCount';
-		IF RoyaltyTeamCount IS NULL THEN
-			SET RoyaltyTeamCount = 10;
+		SELECT status_value INTO royalty_team_count FROM system_status_info WHERE StatusName='royalty_team_count';
+		IF royalty_team_count IS NULL THEN
+			SET royalty_team_count = 10;
 		END IF;
 		
-		INSERT INTO UserTable(UserID) SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(strUserID,',',help_topic_id+1),',',-1) AS UserID FROM 	mysql.help_topic
-		WHERE help_topic_id < LENGTH(strUserID)-LENGTH(REPLACE(strUserID,',','')) +1;
+		INSERT INTO user_table(user_id) SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(str_user_id,',',help_topic_id+1),',',-1) AS user_id FROM 	mysql.help_topic
+		WHERE help_topic_id < LENGTH(str_user_id)-LENGTH(REPLACE(str_user_id,',','')) +1;
 		
 		-- 获取当日所有用户自己的游戏总流水
-		INSERT INTO TempUserWaterScore SELECT UserID,SUM(WaterScore) FROM xjtreasuredb.StreamScoreInfo WHERE DateID = paraDateID AND DataType = 1 GROUP BY UserID;
+		INSERT INTO temp_user_water_score SELECT user_id,SUM(water_score) FROM stream_score_info WHERE date_id = para_date_id AND DataType = 1 GROUP BY user_id;
 		
-		SELECT MIN(`CountID`),MAX(`CountID`) INTO MinCountID,MaxCountID FROM UserTable;		
-		WHILE MinCountID <= MaxCountID DO
+		SELECT MIN(`count_id`),MAX(`count_id`) INTO min_count_id,max_count_id FROM user_table;		
+		WHILE min_count_id <= max_count_id DO
 			-- 取数据
-			SELECT UserID INTO paraUserID FROM UserTable WHERE CountID= MinCountID;
+			SELECT user_id INTO para_user_id FROM user_table WHERE count_id= min_count_id;
 			
-			TRUNCATE TABLE AllChildTable;-- 移除旧数据
-			INSERT INTO AllChildTable SELECT UserID,AgentLevel,ParentID,ParentPath,IsRoyaltyRecharge FROM xjaccountsdb.AccountsAgent  WHERE FIND_IN_SET(paraUserID,ParentPath);	-- 顶级代理所有下级
+			TRUNCATE TABLE all_child_table;-- 移除旧数据
+			INSERT INTO all_child_table SELECT user_id,agent_level,parent_id,parent_path,is_royalty_recharge FROM accounts_agent  WHERE FIND_IN_SET(para_user_id,parent_path);	-- 顶级代理所有下级
 						
 			-- 团队有效（所有子级）人数
-			SELECT COUNT(1) INTO ChildCount FROM AllChildTable WHERE IsRoyaltyRecharge = 1;
+			SELECT COUNT(1) INTO child_count FROM all_child_table WHERE is_royalty_recharge = 1;
 			-- 有效团队人数达标
-			IF ChildCount >= RoyaltyTeamCount THEN
+			IF child_count >= royalty_team_count THEN
 							
 				-- 没有结算过
-				IF NOT EXISTS(SELECT UserID FROM AgentRoyaltyLog WHERE UserID = paraUserID AND DateID = paraDateID) THEN
+				IF NOT EXISTS(SELECT user_id FROM agent_royalty_log WHERE user_id = para_user_id AND date_id = para_date_id) THEN
 					
 					-- 团队总流水
-					SELECT SUM(WaterScore) INTO paraTeamWaterScore FROM TempUserWaterScore team INNER JOIN AllChildTable child ON child.UserID = team.UserID;
+					SELECT SUM(water_score) INTO para_team_water_score FROM temp_user_water_score team INNER JOIN all_child_table child ON child.user_id = team.user_id;
 					-- 团队流水返佣比例
-					SELECT PercentValue INTO paraTeamPercentValue FROM xjtreasuredb.AgentRoyaltyLevel WHERE paraTeamWaterScore >= MINTotalMoney ORDER BY MINTotalMoney DESC LIMIT 0,1;
+					SELECT percent_value INTO para_team_percent_value FROM agent_royalty_level WHERE para_team_water_score >= min_total_money ORDER BY min_total_money DESC LIMIT 0,1;
 										
-					IF paraTeamPercentValue IS NOT NULL AND paraTeamWaterScore >0 THEN
+					IF para_team_percent_value IS NOT NULL AND para_team_water_score >0 THEN
 					
-						TRUNCATE TABLE DrieChildTable;
-						INSERT INTO DrieChildTable(UserID) SELECT UserID FROM AllChildTable WHERE ParentID = paraUserID;
+						TRUNCATE TABLE drie_child_table;
+						INSERT INTO drie_child_table(user_id) SELECT user_id FROM all_child_table WHERE parent_id = para_user_id;
 												
-						SELECT MIN(`CountID`),MAX(`CountID`) INTO cMinCountID,cMaxCountID FROM DrieChildTable;
-						WHILE cMinCountID <= cMaxCountID DO
-							-- 直属子级UserID
-							SELECT UserID INTO paraCParentID FROM DrieChildTable WHERE CountID= cMinCountID;
-							
+						SELECT MIN(`count_id`),MAX(`count_id`) INTO c_min_count_id,c_max_count_id FROM drie_child_table;
+						WHILE c_min_count_id <= c_max_count_id DO
+							-- 直属子级user_id
+				
+							SELECT user_id INTO para_c_parent_id FROM drie_child_table WHERE count_id= c_min_count_id;
+					
 							-- 计算直属子级自营贡献返佣
-							SELECT WaterScore  INTO paraDrieWaterScore FROM TempUserWaterScore WHERE UserID= paraCParentID;
+							SELECT water_score  INTO para_drie_water_score FROM temp_user_water_score WHERE user_id= para_c_parent_id;
 							
-							IF paraDrieWaterScore IS NOT NULL AND paraDrieWaterScore <> 0 THEN
-							SET paraDrieTotalWaterScore = paraDrieTotalWaterScore + paraDrieWaterScore;
-							SET paraDrieRoyaltyAmount = paraDrieRoyaltyAmount + paraTeamPercentValue * paraDrieWaterScore / 1000.0;
+							IF para_drie_water_score IS NOT NULL AND para_drie_water_score <> 0 THEN
+							SET para_drie_total_water_score = para_drie_total_water_score + para_drie_water_score;
+							SET para_drie_royalty_amount = para_drie_royalty_amount + para_team_percent_value * para_drie_water_score / 1000.0;
 								-- 插入直属子级自营返佣数据					
-								INSERT INTO AgentRoyaltyLogInfo(UserID,ParentID,SelfWaterScore,TeamPercentValue,SelfDedicatedAmount,DateID,SettleTime)
-								VALUES(paraCParentID,paraUserID,paraDrieWaterScore,paraTeamPercentValue,paraTeamPercentValue * paraDrieWaterScore / 1000.0,paraDateID,NOW());						
+								INSERT INTO agent_royalty_logI_info(user_id,parent_id,self_water_score,team_percent_value,self_dedicated_amount,date_id,settle_time)
+								VALUES(para_c_parent_id,para_user_id,para_drie_water_score,para_team_percent_value,para_team_percent_value * para_drie_water_score / 1000.0,para_date_id,NOW());						
 							ELSE
-								SET paraDrieWaterScore = 0;			
+								SET para_drie_water_score = 0;			
 							END IF;							
 							
 							-- 代理间接子级
-							SELECT SUM(WaterScore) INTO paraIndireChildWaterScore FROM (SELECT UserID  FROM AllChildTable WHERE ParentID = paraCParentID) childt INNER JOIN TempUserWaterScore temp ON childt.UserID = temp.UserID;
+							SELECT SUM(water_score) INTO para_indire_child_water_score FROM (SELECT user_id  FROM all_child_table WHERE parent_id = para_c_parent_id) childt INNER JOIN temp_user_water_score temp ON childt.user_id = temp.user_id;
 							-- 顶级代理间接子级返佣比例
-							SELECT PercentValue INTO paraIndireChildPercentValue FROM xjtreasuredb.AgentRoyaltyLevel WHERE paraIndireChildWaterScore >= MINTotalMoney ORDER BY MINTotalMoney DESC LIMIT 0,1;	
-							IF paraIndireChildPercentValue IS NOT NULL AND paraIndireChildWaterScore >0 THEN
+							SELECT percent_value INTO para_indire_child_percent_value FROM agent_royalty_level WHERE para_indire_child_water_score >= min_total_money ORDER BY min_total_money DESC LIMIT 0,1;	
+							IF para_indire_child_percent_value IS NOT NULL AND para_indire_child_water_score >0 THEN
 								-- 间接返佣金额
-								SET paraIndireChildRoyaltyAmount = paraIndireChildRoyaltyAmount + paraIndireChildWaterScore * ( paraTeamPercentValue - paraIndireChildPercentValue)  / 1000.0;
+								SET para_indire_child_royalty_amount = para_indire_child_royalty_amount + para_indire_child_water_score * ( para_team_percent_value - para_indire_child_percent_value)  / 1000.0;
 								
 								-- 记录间接子级团队返佣
-								UPDATE AgentRoyaltyLogInfo SET ChildWaterScore = ChildWaterScore + paraIndireChildWaterScore,ChildPercentValue = paraIndireChildPercentValue,ChildDedicatedAmount = paraIndireChildRoyaltyAmount
-								WHERE UserID = paraCParentID AND DateID = paraDateID;
+								UPDATE agent_royalty_logI_info SET child_water_score = child_water_score + para_indire_child_water_score,child_percent_value = para_indire_child_percent_value,child_dedicated_amount = para_indire_child_royalty_amount
+								WHERE user_id = para_c_parent_id AND date_id = para_date_id;
 								IF ROW_COUNT()=0 THEN
-									INSERT INTO AgentRoyaltyLogInfo(UserID,ParentID,SelfWaterScore,TeamPercentValue,SelfDedicatedAmount,ChildWaterScore,ChildPercentValue,ChildDedicatedAmount,DateID,SettleTime)
-									VALUES(paraCParentID,paraUserID,paraDrieWaterScore,paraTeamPercentValue,paraDrieRoyaltyAmount,paraIndireChildWaterScore,paraIndireChildPercentValue,paraIndireChildRoyaltyAmount,paraDateID,NOW());
+									INSERT INTO agent_royalty_logI_info(user_id,parent_id,self_water_score,team_percent_value,self_dedicated_amount,child_water_score,child_percent_value,child_dedicated_amount,date_id,settle_time)
+									VALUES(para_c_parent_id,para_user_id,para_drie_water_score,para_team_percent_value,para_drie_royalty_amount,para_indire_child_water_score,para_indire_child_percent_value,para_indire_child_royalty_amount,para_date_id,NOW());
 								END IF;
 							END IF;
 						
-							SET cMinCountID = cMinCountID + 1; 
+							SET c_min_count_id = c_min_count_id + 1; 
 				
 						END WHILE;
 					
 						-- 团队总返佣
-						SET paraRoyaltyAmount = paraDrieRoyaltyAmount + paraIndireChildRoyaltyAmount;
+						SET para_royalty_amount = para_drie_royalty_amount + para_indire_child_royalty_amount;
 						
-						INSERT INTO xjtreasuredb.AgentRoyaltyLog(DateID,UserID,RoyaltyAmount,TeamWaterScore,TeamPercentValue,DireWaterScore,DireRoyaltyAmount,IntdireRoyaltyAmount,SettleTime,State)
-						VALUES(paraDateID,paraUserID,paraRoyaltyAmount,paraTeamWaterScore,paraTeamPercentValue,paraDrieTotalWaterScore,paraDrieRoyaltyAmount,paraIndireChildRoyaltyAmount,NOW(),0);					
+						INSERT INTO agent_royalty_log(date_id,user_id,royalty_amount,team_water_score,team_percent_value,dire_water_score,dire_royalty_amount,int_dire_royalty_amount,settle_time,state)
+						VALUES(para_date_id,para_user_id,para_royalty_amount,para_team_water_score,para_team_percent_value,para_drie_total_water_score,para_drie_royalty_amount,para_indire_child_royalty_amount,NOW(),0);					
 						
 						-- 更新代理数据，写代理团队总统计数据
-						IF paraRoyaltyAmount > 0 THEN
-							UPDATE xjaccountsdb.AccountsAgent SET CurrentAmount = CurrentAmount + paraRoyaltyAmount, TotalAmount = TotalAmount + paraRoyaltyAmount WHERE UserID = paraUserID;	
+						IF para_royalty_amount > 0 THEN
+							UPDATE accounts_agent SET current_amount = current_amount + para_royalty_amount, total_amount = total_amount + para_royalty_amount WHERE user_id = para_user_id;	
 							
-							CALL WSP_UpdateAgentData(paraUserID,3,paraRoyaltyAmount,0);
+							CALL WSP_UpdateAgentData(para_user_id,3,para_royalty_amount,0);
 						END IF;
 					
 					END IF;
 				END IF;			
 			END IF;
 			
-			SET MinCountID = MinCountID + 1; 
+			SET min_count_id = min_count_id + 1; 
 		END WHILE;	
 	END IF;
 	
-	SELECT 0 AS errorCode, '' AS errorMsg;
+	SELECT 0 AS error_code, '' AS error_msg;
 
 END
 ;;
@@ -3575,6 +3577,7 @@ exitpro:BEGIN
 		SELECT 0 AS errorCode, '修改成功' AS errorMsg;
 		SELECT  paraUserID AS UserID;	
 END
+;
 ;;
 delimiter ;
 
@@ -3687,6 +3690,7 @@ exitpro:BEGIN
 
 
 END
+;
 ;;
 delimiter ;
 
@@ -3827,6 +3831,7 @@ exitpro:BEGIN
 	
 	
 END
+;
 ;;
 delimiter ;
 
@@ -3909,6 +3914,7 @@ exitpro:BEGIN
 		END IF;
 
 END
+;
 ;;
 delimiter ;
 
@@ -4157,6 +4163,7 @@ exitpro:BEGIN
 		
 
 END
+;
 ;;
 delimiter ;
 
@@ -4505,6 +4512,7 @@ exitpro:BEGIN
 		SELECT  paraUserID AS UserID, paraGoldCoin AS UserGold, paraDiamond  AS UserDiamond, strPhoneNumber AS PhoneNumber, paraLevelNum AS MemberOrder;
 
 END
+;
 ;;
 delimiter ;
 
@@ -4548,6 +4556,7 @@ exitpro:BEGIN
 	
 
 END
+;
 ;;
 delimiter ;
 
@@ -4740,6 +4749,7 @@ exitpro:BEGIN
 	
 	
 END
+;
 ;;
 delimiter ;
 
@@ -4965,6 +4975,7 @@ exitpro:BEGIN
 	END IF;
 
 END
+;
 ;;
 delimiter ;
 
@@ -5199,6 +5210,7 @@ exitpro:BEGIN
 	END IF;
 	
 END
+;
 ;;
 delimiter ;
 
@@ -5317,6 +5329,7 @@ exitpro:BEGIN
 	
 
 END
+;
 ;;
 delimiter ;
 
@@ -5392,6 +5405,7 @@ exitpro:BEGIN
 		
 
 END
+;
 ;;
 delimiter ;
 
@@ -5486,6 +5500,7 @@ exitpro:BEGIN
 			SELECT 0 AS errorCode, '绑定成功' AS errorMsg;
 
 END
+;
 ;;
 delimiter ;
 
@@ -5864,6 +5879,7 @@ exitpro:BEGIN
 
 
 END
+;
 ;;
 delimiter ;
 
@@ -5899,6 +5915,7 @@ exitpro:BEGIN
 	
 
 END
+;
 ;;
 delimiter ;
 
@@ -6006,6 +6023,7 @@ exitpro:BEGIN
 	SELECT paraParentID AS ParentID, intUserID AS UserID, paraTotalCount AS TotalCount, paraDireCount AS DireCount, paraDireAgentCount AS DireAgentCount, paraYesterdayAmount AS YesterdayAmount, paraTodayAmount AS TodayAmount, paraTotalWaterScore AS TotalWaterScore, paraDireWaterScore AS DireWaterScore,paraTotalAgentAmount AS TotalAgentAmount, paraCanAgentAmount AS CanAgentAmount, paraAllCount AS AllCount, paraDireAllCount AS DireAllCount,paraDireAgentAllCount AS DireAgentAllCount;	
 
 END
+;
 ;;
 delimiter ;
 
@@ -6121,6 +6139,7 @@ exitpro:BEGIN
 	-- SELECT 0 AS errorCode, '' AS errorMsg;
 	
 END
+;
 ;;
 delimiter ;
 
